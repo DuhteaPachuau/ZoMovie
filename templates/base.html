@@ -11,27 +11,25 @@
 <title>{% block title %}ZoMovie — Free Movie Streaming{% endblock %}</title>
 <meta name="description" content="{% block meta_desc %}Mizo film lehlin a thlawn a enna ZoMovie{% endblock %}">
 
-{# ── Open Graph ── #}
-<meta property="og:type"        content="{% block og_type %}website{% endblock %}">
-<meta property="og:site_name"   content="ZoMovie">
+{# ── Open Graph & Social Media ── #}
+<meta property="og:type" content="{% block og_type %}website{% endblock %}">
+<meta property="og:site_name" content="ZoMovie">
+<meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}">
 
-{# Dynamic Title: Uses movie title if in a detail page, otherwise default #}
-<meta property="og:title"       content="{% block og_title %}{% if movie %}{{ movie.title }} — ZoMovie{% else %}ZoMovie — Free Movie Streaming{% endif %}{% endblock %}">
-
-{# Dynamic Description #}
+{# Title & Description Logic #}
+<meta property="og:title" content="{% block og_title %}{% if movie %}{{ movie.title }}{% else %}ZoMovie — Free Movie Streaming{% endif %}{% endblock %}">
 <meta property="og:description" content="{% block og_desc %}{% if movie %}{{ movie.description|truncatechars:150 }}{% else %}Mizo film lehlin a thlawn a enna ZoMovie{% endif %}{% endblock %}">
 
-{# Dynamic Image: This is the most important part #}
+{# Image Logic (The Master Block) #}
 <meta property="og:image" content="{% block og_image %}{% if movie %}{{ movie.get_og_image }}{% else %}https://res.cloudinary.com/dpsmjarzo/image/upload/v1775288288/Stream_your_films_with_ZoMovie_mdjeyx.png{% endif %}{% endblock %}">
 <meta property="og:image:width" content="1200">
-<meta property="og:image:height"content="630">
-<meta property="og:url"         content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}">
+<meta property="og:image:height" content="630">
 
 {# ── Twitter Card ── #}
-<meta name="twitter:card"        content="summary_large_image">
-<meta name="twitter:title"       content="{% if movie %}{{ movie.title }}{% else %}ZoMovie{% endif %}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{% if movie %}{{ movie.title }}{% else %}ZoMovie{% endif %}">
 <meta name="twitter:description" content="{% if movie %}{{ movie.description|truncatechars:150 }}{% else %}Watch free movies online.{% endif %}">
-<meta property="og:image" content="{% block og_image %}{% if movie %}{{ movie.get_og_image }}{% else %}https://res.cloudinary.com/dpsmjarzo/image/upload/v1775288288/Stream_your_films_with_ZoMovie_mdjeyx.png{% endif %}{% endblock %}">
+<meta name="twitter:image" content="{% if movie %}{{ movie.get_og_image }}{% else %}https://res.cloudinary.com/dpsmjarzo/image/upload/v1775288288/Stream_your_films_with_ZoMovie_mdjeyx.png{% endif %}">
 {% load static %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
