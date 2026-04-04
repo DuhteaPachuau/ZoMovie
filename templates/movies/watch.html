@@ -132,6 +132,40 @@
     gap: 1.5rem;
   }
 }
+@media (max-width: 768px) {
+  /* 1. This kills the black void gap */
+  .video-ratio {
+    padding-top: 0 !important; 
+    height: auto !important;
+    background: transparent !important;
+  }
+
+  /* 2. This makes the video behave like a normal image/block */
+  .video-ratio video, 
+  .video-ratio iframe {
+    position: relative !important;
+    height: auto !important;
+    display: block;
+  }
+
+  /* 3. Pull the title up closer to the video */
+  .content-section {
+    padding-top: 0.5rem !important; 
+  }
+
+  .movie-title-area h1 {
+    font-size: 1.4rem !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    line-height: 1.2;
+  }
+
+  .movie-header {
+    margin-bottom: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    border-bottom: 1px solid var(--border-light);
+  }
+}
 </style>
 {% endblock %}
 
