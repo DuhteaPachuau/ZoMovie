@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Contact — ZoMovie{% endblock %}
+{% block meta_desc %}Get in touch with the ZoMovie team. Report issues, DMCA requests, or just say hello.{% endblock %}
+{% block content %}
+<div style="max-width:580px;margin:0 auto;padding:4rem 1.25rem">
+  <div style="text-align:center;margin-bottom:2.5rem">
+    <div style="font-family:var(--disp);font-size:2rem;letter-spacing:3px;margin-bottom:.4rem">
+      GET IN <span style="color:var(--red)">TOUCH</span>
+    </div>
+    <p style="color:var(--text2);font-size:.9rem">DMCA · Bug reports · General enquiries</p>
+  </div>
+
+  {% if sent %}
+  <div style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);border-radius:var(--r);padding:2rem;text-align:center;margin-bottom:2rem">
+    <div style="font-size:2rem;margin-bottom:.5rem">✅</div>
+    <h3 style="font-weight:700;margin-bottom:.3rem">Message Sent!</h3>
+    <p style="color:var(--text2);font-size:.85rem">We'll get back to you within 48 hours.</p>
+  </div>
+  {% endif %}
+
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:2rem">
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Your Name</label>
+        <input type="text" name="name" class="form-control" placeholder="John Doe" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-control" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subject</label>
+        <select name="subject" class="form-select">
+          <option value="general">General Enquiry</option>
+          <option value="dmca">DMCA / Copyright</option>
+          <option value="bug">Bug Report</option>
+          <option value="request">Movie Request</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message</label>
+        <textarea name="message" class="form-control" rows="5"
+                  placeholder="Tell us what's on your mind..." required
+                  style="resize:vertical"></textarea>
+      </div>
+      <button type="submit" class="btn btn-red" style="width:100%;justify-content:center;padding:.8rem">
+        Send Message ✉️
+      </button>
+    </form>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.25rem">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:.3rem">📧</div>
+      <div style="font-size:.72rem;color:var(--text3);margin-bottom:.2rem">Email</div>
+      <div style="font-size:.82rem">hello@ZoMovie.com</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:.3rem">⏱</div>
+      <div style="font-size:.72rem;color:var(--text3);margin-bottom:.2rem">Response Time</div>
+      <div style="font-size:.82rem">Within 48 hours</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

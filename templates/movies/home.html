@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% block title %}ZoMovie — Watch Free Movies Online{% endblock %}
+{% block meta_desc %}Mizo film lehlin a thlawn a enna ZoMovie{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block content %}
+{% block extra_css %}
+<style>
+.hero{
+  position:relative;min-height:88vh;display:flex;align-items:flex-end;
+  overflow:hidden;margin-top:calc(-1 * var(--nav-h));padding-top:var(--nav-h);
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at 20% 60%,rgba(232,25,44,.12) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 30%,rgba(0,201,255,.05) 0%,transparent 50%),
+             linear-gradient(160deg,#07090f 0%,#0d0f1c 100%);
+}
+.hero-inner{
+  position:relative;z-index:2;
+  padding:0 1.25rem 4rem;max-width:1400px;margin:0 auto;width:100%;
+  display:grid;grid-template-columns:1fr 300px;gap:2.5rem;align-items:end;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:.4rem;
+  background:rgba(232,25,44,.12);border:1px solid rgba(232,25,44,.22);
+  padding:.22rem .8rem;border-radius:20px;font-size:.68rem;font-weight:700;
+  letter-spacing:1.2px;color:var(--red);text-transform:uppercase;margin-bottom:1rem;
+}
+.hero-title{
+  font-family:var(--disp);
+  font-size:clamp(2.5rem,6.5vw,5rem);
+  letter-spacing:3px;line-height:.95;margin-bottom:1rem;
+}
+.hero-desc{
+  font-size:.95rem;color:var(--text2);max-width:500px;
+  line-height:1.75;margin-bottom:1.5rem;font-weight:300;
+}
+.hero-meta{display:flex;align-items:center;gap:1rem;margin-bottom:1.75rem;flex-wrap:wrap}
+.hero-pill{display:flex;align-items:center;gap:.3rem;font-size:.8rem;color:var(--text2)}
+.hero-actions{display:flex;gap:.65rem;flex-wrap:wrap}
+.top-list{display:flex;flex-direction:column;gap:.65rem}
+.top-item{
+  display:flex;gap:.75rem;align-items:center;
+  background:rgba(255,255,255,.025);border:1px solid var(--border);
+  border-radius:9px;padding:.55rem;transition:all .2s;
+}
+.top-item:hover{border-color:rgba(232,25,44,.22);background:rgba(232,25,44,.04)}
+.top-poster{width:40px;height:58px;border-radius:5px;overflow:hidden;background:var(--bg3);flex-shrink:0}
+.top-poster img{width:100%;height:100%;object-fit:cover}
+.top-num{font-family:var(--disp);font-size:1.4rem;color:rgba(255,255,255,.07);flex-shrink:0;width:24px;text-align:center}
+.genre-strip{background:var(--bg2);border-bottom:1px solid var(--border);padding:.8rem 1.25rem;overflow-x:auto}
+.genre-strip::-webkit-scrollbar{height:0}
+.genre-strip-inner{display:flex;gap:.45rem;max-width:1400px;margin:0 auto}
+.g-chip{
+  padding:.28rem .85rem;border-radius:20px;background:var(--bg3);
+  border:1px solid var(--border);font-size:.77rem;font-weight:500;
+  color:var(--text2);white-space:nowrap;transition:all .2s;
+}
+.g-chip:hover{border-color:var(--red);color:var(--red)}
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr}
+  .top-list{display:none}
+}
+</style>
+{% endblock %}
+
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div>
+      {% if featured %}
+      <div class="hero-eyebrow">⚡ Featured Film</div>
+      <h1 class="hero-title">{{ featured.title|upper|truncatechars:26 }}</h1>
+      {% if featured.tagline %}<p style="font-style:italic;color:var(--text3);margin-bottom:.7rem">"{{ featured.tagline }}"</p>{% endif %}
+      <p class="hero-desc">{{ featured.description|truncatechars:210 }}</p>
+      <div class="hero-meta">
+        <div class="hero-pill"><span class="star">★</span> {{ featured.imdb_score }}</div>
+        <div class="hero-pill">🕐 {{ featured.duration_display }}</div>
+        <div class="hero-pill">📅 {{ featured.release_year }}</div>
+        <span class="badge badge-gold">{{ featured.quality }}</span>
+        <span class="badge badge-red">{{ featured.rating }}</span>
+      </div>
+      <div class="hero-actions">
+        <a href="{% url 'watch' featured.slug %}" class="btn btn-red btn-lg">▶ Watch Now</a>
+        <a href="{{ featured.get_absolute_url }}" class="btn btn-ghost btn-lg">ℹ More Info</a>
+      </div>
+      {% else %}
+      <div class="hero-eyebrow">🎬 Free Streaming</div>
+      <h1 class="hero-title">WATCH FREE<br>MOVIES ONLINE</h1>
+      <p class="hero-desc">No signup. No credit card. Just hit play and enjoy hundreds of movies in HD.</p>
+      <div class="hero-actions">
+        <a href="{% url 'movie_list' %}" class="btn btn-red btn-lg">Browse Movies →</a>
+        <a href="{% url 'categories' %}" class="btn btn-ghost btn-lg">By Category</a>
+      </div>
+      {% endif %}
+    </div>
+    <div class="top-list">
+      <div style="font-size:.65rem;font-weight:700;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:.1rem">Top Picks</div>
+      {% for m in top_rated %}
+      <a href="{{ m.get_absolute_url }}" class="top-item">
+        <span class="top-num">{{ forloop.counter }}</span>
+        <div class="top-poster">
+          {% if m.poster %}<img src="{{ m.poster.url }}" alt="">
+          {% else %}<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">🎬</div>{% endif %}
+        </div>
+        <div>
+          <div style="font-size:.8rem;font-weight:600;margin-bottom:.1rem">{{ m.title|truncatechars:20 }}</div>
+          <div style="font-size:.7rem;color:var(--text3)"><span class="star">★</span> {{ m.imdb_score }} · {{ m.release_year }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Genre strip -->
+<div class="genre-strip">
+  <div class="genre-strip-inner">
+    <a href="{% url 'movie_list' %}" class="g-chip">🎬 All</a>
+    {% for g in genres %}<a href="{% url 'genre_view' g.slug %}" class="g-chip">{{ g.icon }} {{ g.name }}</a>{% endfor %}
+  </div>
+</div>
+
+{% if now_showing %}
+<div class="section">
+  <div class="sec-head">
+    <h2 class="sec-title">NOW <span>SHOWING</span></h2>
+    <a href="{% url 'movie_list' %}?status=now_showing" class="see-all">View all →</a>
+  </div>
+  <div class="movies-grid">
+    {% for m in now_showing %}
+    <a href="{{ m.get_absolute_url }}" class="card">
+      <div class="card-poster">
+        {% if m.poster %}<img src="{{ m.poster.url }}" alt="{{ m.title }}" loading="lazy">
+        {% else %}<div class="no-poster"><span class="no-poster-ic">🎬</span></div>{% endif %}
+        <div class="card-ov"><div class="play-btn">▶</div></div>
+        <div style="position:absolute;top:.45rem;left:.45rem"><span class="badge badge-red">NOW</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">{{ m.title }}</div>
+        <div class="card-meta"><span class="star">★</span>{{ m.imdb_score }}<span>·</span>{{ m.release_year }}<span>·</span>{{ m.duration_display }}</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if top_rated %}
+<div style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+<div class="section">
+  <div class="sec-head">
+    <h2 class="sec-title">TOP <span>RATED</span></h2>
+    <a href="{% url 'movie_list' %}?status=top_rated" class="see-all">View all →</a>
+  </div>
+  <div class="movies-grid">
+    {% for m in top_rated %}
+    <a href="{{ m.get_absolute_url }}" class="card">
+      <div class="card-poster">
+        {% if m.poster %}<img src="{{ m.poster.url }}" alt="{{ m.title }}" loading="lazy">
+        {% else %}<div class="no-poster"><span class="no-poster-ic">⭐</span></div>{% endif %}
+        <div class="card-ov"><div class="play-btn">▶</div></div>
+        <div style="position:absolute;top:.45rem;left:.45rem"><span class="badge badge-gold">★ {{ m.imdb_score }}</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">{{ m.title }}</div>
+        <div class="card-meta"><span class="star">★</span>{{ m.imdb_score }}<span>·</span>{{ m.release_year }}</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+</div>
+{% endif %}
+
+{% if coming_soon %}
+<div class="section">
+  <div class="sec-head">
+    <h2 class="sec-title">COMING <span>SOON</span></h2>
+    <a href="{% url 'movie_list' %}?status=coming_soon" class="see-all">View all →</a>
+  </div>
+  <div class="movies-grid">
+    {% for m in coming_soon %}
+    <a href="{{ m.get_absolute_url }}" class="card">
+      <div class="card-poster">
+        {% if m.poster %}<img src="{{ m.poster.url }}" alt="{{ m.title }}" loading="lazy">
+        {% else %}<div class="no-poster"><span class="no-poster-ic">🔜</span></div>{% endif %}
+        <div style="position:absolute;inset:0;background:rgba(7,9,15,.35);display:flex;align-items:center;justify-content:center">
+          <span class="badge badge-cyan" style="font-size:.72rem;padding:.28rem .75rem">COMING SOON</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">{{ m.title }}</div>
+        <div class="card-meta">{{ m.release_year }} · {{ m.duration_display }}</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

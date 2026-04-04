@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#07090f">
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css"/>
+
+{# ── Primary Meta ── #}
+<title>{% block title %}ZoMovie — Free Movie Streaming{% endblock %}</title>
+<meta name="description" content="{% block meta_desc %}Mizo film lehlin a thlawn a enna ZoMovie{% endblock %}">
+
+{# ── Open Graph ── #}
+<meta property="og:type"        content="{% block og_type %}website{% endblock %}">
+<meta property="og:site_name"   content="ZoMovie">
+<meta property="og:title"       content="{% block og_title %}{{ og_title|default:'ZoMovie — Free Movie Streaming' }}{% endblock %}">
+<meta property="og:description" content="{% block og_desc %}{{ og_description|default:'Mizo film lehlin a thlawn a enna ZoMovie' }}{% endblock %}">
+<meta property="og:image"       content="{% block og_image %}{{ og_image|default:'' }}{% endblock %}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height"content="630">
+<meta property="og:url"         content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}">
+
+{# ── Twitter Card ── #}
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="{{ og_title|default:'ZoMovie' }}">
+<meta name="twitter:description" content="{{ og_description|default:'Watch free movies online.' }}">
+<meta name="twitter:image"       content="{{ og_image|default:'' }}">
+
+{% load static %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════
+   ZoMovie — Design System
+   ══════════════════════════════════════════════════ */
+:root{
+  --bg:      #07090f;
+  --bg2:     #0c0f1a;
+  --bg3:     #111520;
+  --card:    #12161f;
+  --border:  rgba(255,255,255,.06);
+  --border2: rgba(255,255,255,.12);
+  --red:     #e8192c;
+  --red2:    #b50f1f;
+  --gold:    #f5c518;
+  --cyan:    #00c9ff;
+  --text:    #eef0f8;
+  --text2:   #8892a4;
+  --text3:   #424d60;
+  --r:       12px;
+  --nav-h:   64px;
+  --font:    'Inter', sans-serif;
+  --disp:    'Anton', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button,input,select,textarea{font-family:var(--font)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+
+/* ══ NAV ══════════════════════════════════════════ */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:999;
+  height:var(--nav-h);
+  background:rgba(7,9,15,.92);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+  transition:background .3s;
+}
+.nav.solid{background:rgba(7,9,15,.99)}
+.nav-inner{
+  max-width:1400px;margin:0 auto;
+  padding:0 1.25rem;height:100%;
+  display:flex;align-items:center;gap:1rem;
+}
+/* Logo */
+.nav-logo{
+  font-family:var(--disp);font-size:1.5rem;
+  letter-spacing:2px;flex-shrink:0;
+}
+.nav-logo em{color:var(--red);font-style:normal}
+
+/* Desktop links */
+.nav-links{
+  display:flex;align-items:center;gap:.1rem;
+  margin-left:1.5rem;
+}
+.nav-links a{
+  padding:.45rem .9rem;border-radius:7px;
+  font-size:.83rem;font-weight:500;color:var(--text2);
+  transition:all .2s;white-space:nowrap;position:relative;
+}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.nav-links a.active{color:var(--text)}
+.nav-links a.active::after{
+  content:'';position:absolute;bottom:-1px;left:.9rem;right:.9rem;
+  height:2px;background:var(--red);border-radius:1px;
+}
+
+/* Search */
+.nav-search{position:relative;flex:1;max-width:340px;margin-left:auto}
+.nav-search input{
+  width:100%;padding:.48rem 1rem .48rem 2.4rem;
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:8px;color:var(--text);font-size:.83rem;
+  transition:border-color .2s,background .2s;
+}
+.nav-search input::placeholder{color:var(--text3)}
+.nav-search input:focus{outline:none;border-color:var(--red);background:var(--bg2)}
+.nav-search-ic{
+  position:absolute;left:.7rem;top:50%;transform:translateY(-50%);
+  color:var(--text3);font-size:.85rem;pointer-events:none;
+}
+
+/* Hamburger */
+.burger{
+display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: .4rem;
+  /* CHANGE THIS LINE */
+  margin-left: auto;
+}
+.burger span{
+  display:block;width:22px;height:2px;
+  background:var(--text2);border-radius:2px;
+  transition:all .3s;
+}
+.burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.burger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* Mobile drawer */
+.nav-drawer{
+  display:none;
+  position:fixed;top:var(--nav-h);left:0;right:0;bottom:0;
+  background:rgba(7,9,15,.98);z-index:998;
+  flex-direction:column;padding:1.5rem 1.25rem;gap:.3rem;
+  overflow-y:auto;
+  transform:translateX(-100%);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+}
+.nav-drawer.open{transform:translateX(0)}
+.nav-drawer a{
+  display:block;padding:.85rem 1rem;border-radius:8px;
+  font-size:1rem;font-weight:500;color:var(--text2);
+  border:1px solid transparent;transition:all .2s;
+}
+.nav-drawer a:hover,.nav-drawer a.active{
+  color:var(--text);background:rgba(255,255,255,.04);border-color:var(--border);
+}
+.nav-drawer-search{
+  margin-bottom:1rem;
+}
+.nav-drawer-search input{
+  width:100%;padding:.65rem 1rem;background:var(--bg3);
+  border:1px solid var(--border2);border-radius:8px;
+  color:var(--text);font-size:.9rem;
+}
+.nav-drawer-search input:focus{outline:none;border-color:var(--red)}
+.drawer-divider{
+  height:1px;background:var(--border);margin:.5rem 0;
+}
+
+@media(max-width:768px){
+  .nav-links{display:none}
+  .nav-search{display:none}
+  .burger{display:flex}
+  .nav-drawer{display:flex}
+}
+@media(min-width:769px){
+  .nav-drawer{display:none!important}
+}
+
+/* ══ BUTTONS ══════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.55rem 1.3rem;border-radius:8px;border:none;
+  font-size:.85rem;font-weight:600;cursor:pointer;
+  transition:all .2s;letter-spacing:.2px;
+}
+.btn-red{background:var(--red);color:#fff}
+.btn-red:hover{background:var(--red2);transform:translateY(-1px)}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border2)}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
+.btn-lg{padding:.8rem 2rem;font-size:.95rem}
+.btn-sm{padding:.38rem .9rem;font-size:.78rem}
+
+/* ══ BADGES ══════════════════════════════════════ */
+.badge{display:inline-block;padding:.18rem .55rem;border-radius:5px;font-size:.67rem;font-weight:700;letter-spacing:.6px}
+.badge-red {background:rgba(232,25,44,.15);color:var(--red); border:1px solid rgba(232,25,44,.22)}
+.badge-gold{background:rgba(245,197,24,.1); color:var(--gold);border:1px solid rgba(245,197,24,.18)}
+.badge-cyan{background:rgba(0,201,255,.08); color:var(--cyan);border:1px solid rgba(0,201,255,.15)}
+
+/* ══ MOVIE CARD ══════════════════════════════════ */
+.card{
+  display:block;background:var(--card);border-radius:var(--r);
+  border:1px solid var(--border);overflow:hidden;
+  transition:transform .25s,box-shadow .25s,border-color .25s;
+  position:relative;
+}
+.card:hover{transform:translateY(-5px);box-shadow:0 14px 40px rgba(0,0,0,.7);border-color:rgba(232,25,44,.22)}
+.card-poster{aspect-ratio:2/3;overflow:hidden;position:relative;background:var(--bg3)}
+.card-poster img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.card:hover .card-poster img{transform:scale(1.06)}
+.card-ov{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(7,9,15,.95),transparent 55%);
+  display:flex;flex-direction:column;justify-content:flex-end;padding:.7rem;
+  opacity:0;transition:opacity .25s;
+}
+.card:hover .card-ov{opacity:1}
+.play-btn{
+  width:40px;height:40px;border-radius:50%;background:var(--red);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.95rem;margin:0 auto .45rem;
+  box-shadow:0 0 18px rgba(232,25,44,.5);
+}
+.card-body{padding:.7rem}
+.card-title{
+  font-size:.87rem;font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:.3rem;
+}
+.card-meta{font-size:.72rem;color:var(--text3);display:flex;gap:.35rem;align-items:center}
+.star{color:var(--gold)}
+.no-poster{
+  width:100%;height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:.4rem;
+  color:var(--text3);font-size:.72rem;
+}
+.no-poster-ic{font-size:2.2rem}
+
+/* ══ GRID ═══════════════════════════════════════ */
+.movies-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(155px,1fr));
+  gap:1rem;
+}
+@media(max-width:480px){
+  .movies-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ══ SECTIONS ════════════════════════════════════ */
+.section{padding:2.5rem 1.25rem;max-width:1400px;margin:0 auto}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.sec-title{font-family:var(--disp);font-size:1.5rem;letter-spacing:2px}
+.sec-title span{color:var(--red)}
+.see-all{font-size:.78rem;color:var(--text3);transition:color .2s}
+.see-all:hover{color:var(--gold)}
+
+/* ══ FORMS ═══════════════════════════════════════ */
+.form-control,.form-select{
+  width:100%;padding:.65rem 1rem;background:var(--bg3);
+  border:1px solid var(--border2);border-radius:8px;
+  color:var(--text);font-size:.875rem;transition:border-color .2s;
+}
+.form-control:focus,.form-select:focus{outline:none;border-color:var(--red)}
+.form-select option{background:var(--bg2)}
+.form-label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:.35rem}
+.form-group{margin-bottom:1.1rem}
+
+/* ══ PAGINATION ══════════════════════════════════ */
+.pager{display:flex;align-items:center;justify-content:center;gap:.35rem;margin-top:2.5rem;flex-wrap:wrap}
+.pager a,.pager span{
+  width:36px;height:36px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.82rem;background:var(--card);border:1px solid var(--border);
+  color:var(--text2);transition:all .2s;
+}
+.pager a:hover{background:var(--red);border-color:var(--red);color:#fff}
+.pager .cur{background:var(--red);border-color:var(--red);color:#fff}
+
+/* ══ MAIN ════════════════════════════════════════ */
+main{padding-top:var(--nav-h);min-height:100vh}
+
+/* ══ FOOTER ══════════════════════════════════════ */
+footer{
+  background:var(--bg2);border-top:1px solid var(--border);
+  padding:3rem 1.25rem 2rem;margin-top:5rem;
+}
+.footer-inner{max-width:1400px;margin:0 auto}
+.footer-grid{
+  display:grid;grid-template-columns:2fr 1fr 1fr;gap:3rem;margin-bottom:2rem;
+}
+.footer-brand{font-family:var(--disp);font-size:1.3rem;letter-spacing:2px;margin-bottom:.5rem}
+.footer-brand em{color:var(--red);font-style:normal}
+.footer-desc{font-size:.8rem;color:var(--text3);line-height:1.7;max-width:260px}
+.footer-col h4{font-size:.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:.9rem}
+.footer-col a{display:block;font-size:.82rem;color:var(--text2);padding:.22rem 0;transition:color .2s}
+.footer-col a:hover{color:var(--gold)}
+.footer-bottom{
+  border-top:1px solid var(--border);padding-top:1.5rem;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;
+  font-size:.74rem;color:var(--text3);
+}
+@media(max-width:640px){
+  .footer-grid{grid-template-columns:1fr 1fr;gap:2rem}
+  .footer-grid>div:first-child{grid-column:1/-1}
+}
+</style>
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav class="nav" id="mainNav">
+  <div class="nav-inner">
+    <a href="{% url 'home' %}" class="nav-logo">Zo<em>Movie</em></a>
+
+    <!-- Desktop links -->
+    <div class="nav-links">
+      <a href="{% url 'home' %}"        class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a>
+      <a href="{% url 'movie_list' %}"  class="{% if request.resolver_match.url_name == 'movie_list' %}active{% endif %}">Movies</a>
+      <a href="{% url 'categories' %}"  class="{% if request.resolver_match.url_name == 'categories' or request.resolver_match.url_name == 'genre_view' %}active{% endif %}">Categories</a>
+      <a href="{% url 'about' %}"       class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}">About</a>
+      <a href="{% url 'contact' %}"     class="{% if request.resolver_match.url_name == 'contact' %}active{% endif %}">Contact</a>
+    </div>
+
+    <!-- Desktop search -->
+    <form class="nav-search" method="get" action="{% url 'movie_list' %}">
+      <span class="nav-search-ic">🔍</span>
+      <input type="text" name="q" placeholder="Search movies..." value="{{ request.GET.q|default:'' }}">
+    </form>
+
+    <!-- Hamburger (mobile) -->
+    <button class="burger" id="burger" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile Drawer -->
+<div class="nav-drawer" id="drawer">
+  <form class="nav-drawer-search" method="get" action="{% url 'movie_list' %}">
+    <input type="text" name="q" placeholder="🔍 Search movies...">
+  </form>
+  <a href="{% url 'home' %}"       class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">🏠 Home</a>
+  <a href="{% url 'movie_list' %}" class="{% if request.resolver_match.url_name == 'movie_list' %}active{% endif %}">🎬 Movies</a>
+  <a href="{% url 'categories' %}" class="{% if request.resolver_match.url_name == 'categories' or request.resolver_match.url_name == 'genre_view' %}active{% endif %}">🗂 Categories</a>
+  <div class="drawer-divider"></div>
+  <a href="{% url 'about' %}"   class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}">ℹ️ About</a>
+  <a href="{% url 'contact' %}" class="{% if request.resolver_match.url_name == 'contact' %}active{% endif %}">✉️ Contact</a>
+</div>
+
+<main>{% block content %}{% endblock %}</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">Zo<em>Movie</em></div>
+        <p class="footer-desc">Free movie streaming. No signup needed. Enjoy HD movies anytime, anywhere.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Browse</h4>
+        <a href="{% url 'movie_list' %}?status=now_showing">Now Showing</a>
+        <a href="{% url 'movie_list' %}?status=top_rated">Top Rated</a>
+        <a href="{% url 'movie_list' %}?status=coming_soon">Coming Soon</a>
+        <a href="{% url 'categories' %}">All Categories</a>
+      </div>
+      <div class="footer-col">
+        <h4>Info</h4>
+        <a href="{% url 'about' %}">About Us</a>
+        <a href="{% url 'contact' %}">Contact</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">DMCA</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 ZoMovie · For entertainment purposes only</span>
+      <span>No content is stored on our servers</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── Nav scroll effect ──
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('solid', window.scrollY > 10);
+}, { passive: true });
+
+// ── Mobile hamburger ──
+const burger = document.getElementById('burger');
+const drawer = document.getElementById('drawer');
+burger.addEventListener('click', () => {
+  const open = drawer.classList.toggle('open');
+  burger.classList.toggle('open', open);
+  burger.setAttribute('aria-expanded', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+});
+
+// Close drawer on link click
+drawer.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => {
+    drawer.classList.remove('open');
+    burger.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+});
+
+// Close drawer on outside click
+document.addEventListener('click', e => {
+  if(!nav.contains(e.target) && !drawer.contains(e.target)){
+    drawer.classList.remove('open');
+    burger.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+});
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

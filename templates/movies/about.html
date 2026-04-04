@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}About — ZoMovie{% endblock %}
+{% block meta_desc %}Learn about ZoMovie — your free, no-signup movie streaming platform.{% endblock %}
+{% block content %}
+<div style="max-width:800px;margin:0 auto;padding:4rem 1.25rem">
+  <div style="text-align:center;margin-bottom:3rem">
+    <div style="font-family:var(--disp);font-size:2.5rem;letter-spacing:3px;margin-bottom:.5rem">
+      ABOUT <span style="color:var(--red)">ZoMovie</span>
+    </div>
+    <p style="color:var(--text2)">Free movies. No drama. Just watch.</p>
+  </div>
+
+  <div style="display:grid;gap:1.5rem">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:2rem">
+      <div style="font-size:1.8rem;margin-bottom:.75rem">🎬</div>
+      <h2 style="font-family:var(--disp);font-size:1.2rem;letter-spacing:1.5px;margin-bottom:.6rem">Eng nge ZoMovie chu?</h2>
+      <p style="color:var(--text2);line-height:1.75;font-size:.9rem">ZoMovie hi i tan liau liau a siam, a thlawn a mizo film lehlin en theihna a ni,tin hun kan neih chuan heng film lehlin te hi tih fiah zel tum ani. Mizo film lehlin upload ve i duh chuan contact atang hian min rawn be pawp ve dawn nia.I tan kan tan in chawm tawn zel ila tiraw...
+      </p>
+    </div>
+
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">
+      {% for icon,label,val in stats %}
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;text-align:center">
+        <div style="font-size:1.5rem;margin-bottom:.4rem">{{ icon }}</div>
+        <div style="font-family:var(--disp);font-size:1.4rem;color:var(--gold)">{{ val }}</div>
+        <div style="font-size:.72rem;color:var(--text3);margin-top:.2rem">{{ label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

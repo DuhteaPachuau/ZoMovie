@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}{{ genre.name }} Movies — ZoMovie{% endblock %}
+{% block meta_desc %}Watch {{ genre.name }} movies free online on ZoMovie.{% endblock %}
+{% block content %}
+<div style="background:var(--bg2);padding:3rem 1.25rem 2rem;border-bottom:1px solid var(--border)">
+  <div style="max-width:1400px;margin:0 auto">
+    <div style="font-size:.65rem;font-weight:700;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:.35rem">Category</div>
+    <h1 style="font-family:var(--disp);font-size:2rem;letter-spacing:3px">
+      {{ genre.icon }} {{ genre.name|upper }} <span style="color:var(--red)">MOVIES</span>
+    </h1>
+    <p style="color:var(--text2);margin-top:.3rem;font-size:.85rem">{{ page_obj.paginator.count }} titles</p>
+    <a href="{% url 'categories' %}" style="font-size:.78rem;color:var(--text3);margin-top:.5rem;display:inline-block">← All Categories</a>
+  </div>
+</div>
+<div class="section">
+  {% if page_obj.object_list %}
+  <div class="movies-grid">
+    {% for m in page_obj %}
+    <a href="{{ m.get_absolute_url }}" class="card">
+      <div class="card-poster">
+        {% if m.poster %}<img src="{{ m.poster.url }}" alt="{{ m.title }}" loading="lazy">
+        {% else %}<div class="no-poster"><span class="no-poster-ic">🎬</span></div>{% endif %}
+        <div class="card-ov"><div class="play-btn">▶</div></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">{{ m.title }}</div>
+        <div class="card-meta"><span class="star">★</span>{{ m.imdb_score }}<span>·</span>{{ m.release_year }}</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  <div class="pager">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">‹</a>{% endif %}
+    {% for n in page_obj.paginator.page_range %}
+      {% if page_obj.number == n %}<span class="cur">{{ n }}</span>
+      {% elif n > page_obj.number|add:'-3' and n < page_obj.number|add:'3' %}<a href="?page={{ n }}">{{ n }}</a>{% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">›</a>{% endif %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:4rem;color:var(--text3)">No movies in this category yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

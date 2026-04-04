@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}All Movies — ZoMovie{% endblock %}
+{% block meta_desc %}Browse and stream all movies free on ZoMove. Search by genre, rating, and more.{% endblock %}
+{% block extra_css %}
+<style>
+.filter-bar{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:.75rem 1.25rem;position:sticky;top:var(--nav-h);z-index:100;
+}
+.filter-inner{
+  max-width:1400px;margin:0 auto;
+  display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+}
+.filter-inner input{flex:1;min-width:160px;max-width:280px}
+.count{font-size:.75rem;color:var(--text3);margin-left:auto;white-space:nowrap}
+@media(max-width:480px){
+  .filter-inner{gap:.4rem}
+  .filter-inner input{max-width:100%;flex-basis:100%}
+  .count{display:none}
+}
+</style>
+{% endblock %}
+{% block content %}
+<div style="background:linear-gradient(to bottom,var(--bg2),var(--bg));padding:3rem 1.25rem 2rem;border-bottom:1px solid var(--border)">
+  <div style="max-width:1400px;margin:0 auto">
+    <h1 style="font-family:var(--disp);font-size:2rem;letter-spacing:3px">ALL <span style="color:var(--red)">MOVIES</span></h1>
+    <p style="color:var(--text2);margin-top:.3rem;font-size:.88rem">{{ page_obj.paginator.count }} titles available</p>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="filter-inner">
+    <form method="get" style="display:contents">
+      <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search..." style="max-width:250px">
+      <select name="status" class="form-select" style="width:auto;min-width:130px" onchange="this.form.submit()">
+        <option value="">All Status</option>
+        <select name="status" class="form-select" style="width:auto;min-width:130px" onchange="this.form.submit()">
+  <option value="">All Status</option>
+  <option value="now_showing" {% if sel_status == 'now_showing' %}selected{% endif %}>Now Showing</option>
+  <option value="coming_soon" {% if sel_status == 'coming_soon' %}selected{% endif %}>Coming Soon</option>
+  <option value="top_rated"   {% if sel_status == 'top_rated'   %}selected{% endif %}>Top Rated</option>
+</select>
+<select name="genre" class="form-select" style="width:auto;min-width:120px" onchange="this.form.submit()">
+  <option value="">All Genres</option>
+  {% for g in genres %}<option value="{{ g.slug }}" {% if sel_genre == g.slug %}selected{% endif %}>{{ g.name }}</option>{% endfor %}
+</select>
+<select name="sort" class="form-select" style="width:auto;min-width:110px" onchange="this.form.submit()">
+  <option value="-created_at" {% if sort == '-created_at' %}selected{% endif %}>Latest</option>
+  <option value="imdb"        {% if sort == 'imdb'        %}selected{% endif %}>Top Rated</option>
+<option value="year"        {% if sort == 'year'  %}selected{% endif %}>Year</option>
+<option value="title"       {% if sort == 'title' %}selected{% endif %}>A–Z</option>
+      </select>
+      <button type="submit" class="btn btn-red btn-sm">Go</button>
+      {% if q or sel_genre or sel_status %}
+      <a href="{% url 'movie_list' %}" style="font-size:.77rem;color:var(--text3)">✕ Clear</a>
+      {% endif %}
+    </form>
+    <span class="count">{{ page_obj.paginator.count }} movies</span>
+  </div>
+</div>
+
+<div class="section">
+  {% if page_obj.object_list %}
+  <div class="movies-grid">
+    {% for m in page_obj %}
+    <a href="{{ m.get_absolute_url }}" class="card">
+      <div class="card-poster">
+        {% if m.poster %}<img src="{{ m.poster.url }}" alt="{{ m.title }}" loading="lazy">
+        {% else %}<div class="no-poster"><span class="no-poster-ic">🎬</span></div>{% endif %}
+        <div class="card-ov"><div class="play-btn">▶</div></div>
+        <div style="position:absolute;top:.45rem;left:.45rem">
+         {% if m.status == 'now_showing' %}<span class="badge badge-red">NOW</span>
+{% elif m.status == 'coming_soon' %}<span class="badge badge-cyan">SOON</span>
+{% else %}<span class="badge badge-gold">TOP</span>{% endif %}
+        </div>
+        <div style="position:absolute;top:.45rem;right:.45rem">
+          <span class="badge" style="background:rgba(0,0,0,.65);color:var(--text2);font-size:.6rem">{{ m.quality }}</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">{{ m.title }}</div>
+        <div class="card-meta"><span class="star">★</span>{{ m.imdb_score }}<span>·</span>{{ m.release_year }}<span>·</span>{{ m.duration_display }}</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  <div class="pager">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&q={{ q }}&status={{ sel_status }}&genre={{ sel_genre }}&sort={{ sort }}">‹</a>{% endif %}
+    {% for n in page_obj.paginator.page_range %}
+      {% if page_obj.number == n %}<span class="cur">{{ n }}</span>
+      {% elif n > page_obj.number|add:'-3' and n < page_obj.number|add:'3' %}
+      <a href="?page={{ n }}&q={{ q }}&status={{ sel_status }}&genre={{ sel_genre }}&sort={{ sort }}">{{ n }}</a>{% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&q={{ q }}&status={{ sel_status }}&genre={{ sel_genre }}&sort={{ sort }}">›</a>{% endif %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:5rem 1rem;color:var(--text3)">
+    <div style="font-size:3rem;margin-bottom:.75rem">🎬</div>
+    <h3 style="font-family:var(--disp);letter-spacing:2px;margin-bottom:.4rem">NO RESULTS</h3>
+    <p style="font-size:.85rem">Try different filters</p>
+    <a href="{% url 'movie_list' %}" class="btn btn-ghost btn-sm" style="margin-top:1rem">Clear All</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

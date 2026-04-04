@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Categories — ZoMovie{% endblock %}
+{% block meta_desc %}Browse movies by genre on ZoMovie. Action, Drama, Comedy, Thriller and more.{% endblock %}
+{% block content %}
+{% block extra_css %}
+<style>
+.genre-card{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:2rem 1rem;text-align:center;transition:all .25s;gap:.6rem;
+  min-height:130px;
+}
+.genre-card:hover{
+  border-color:rgba(232,25,44,.3);background:rgba(232,25,44,.04);
+  transform:translateY(-4px);box-shadow:0 12px 35px rgba(0,0,0,.5);
+}
+.genre-icon{font-size:2.2rem;line-height:1}
+.genre-name{font-family:var(--disp);font-size:1rem;letter-spacing:1.5px}
+.genre-count{font-size:.72rem;color:var(--text3)}
+.genres-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:1rem;
+}
+@media(max-width:480px){
+  .genres-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+{% endblock %}
+<div style="background:linear-gradient(to bottom,var(--bg2),var(--bg));padding:3.5rem 1.25rem 2.5rem;border-bottom:1px solid var(--border)">
+  <div style="max-width:1400px;margin:0 auto">
+    <h1 style="font-family:var(--disp);font-size:2rem;letter-spacing:3px">ALL <span style="color:var(--red)">CATEGORIES</span></h1>
+    <p style="color:var(--text2);margin-top:.4rem">Browse movies by genre</p>
+  </div>
+</div>
+<div class="section">
+  <div class="genres-grid">
+    {% for g in genres %}
+    <a href="{% url 'genre_view' g.slug %}" class="genre-card">
+      <div class="genre-icon">{{ g.icon }}</div>
+      <div class="genre-name">{{ g.name|upper }}</div>
+    </a>
+    {% empty %}
+    <p style="color:var(--text3);grid-column:1/-1;text-align:center;padding:3rem">No categories yet.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
