@@ -59,12 +59,11 @@ a.plyr__control[download] { display: none !important; }
 .player-wrap { background: #000; width: 100%; max-width: 1280px; margin: 0 auto; }
 .plyr { --plyr-color-main: #e8192c; }
 
-/* ── Large play button fix ── */
+/* ── Large play button ── */
 .plyr__control--overlaid {
   width: 64px !important;
   height: 64px !important;
   background: rgba(232,25,44,0.9) !important;
-  transition: opacity 0.2s ease !important;
 }
 @media (max-width: 768px) {
   .plyr__control--overlaid {
@@ -209,16 +208,20 @@ a.plyr__control[download] { display: none !important; }
 document.addEventListener('DOMContentLoaded', () => {
   const videoEl = document.getElementById('player');
   if (!videoEl) return;
+
   const HD = "{{ movie.video_url_hd|escapejs }}";
   const SD = "{{ movie.video_url_sd|escapejs }}";
   const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   const slowTypes = ['slow-2g', '2g', '3g'];
+
   function isSlowConnection() {
     if (!conn) return false;
     return slowTypes.includes(conn.effectiveType) || (conn.downlink && conn.downlink < 2);
   }
+
   let currentQuality = (SD && isSlowConnection()) ? 480 : 1080;
   let manualOverride = false;
+
   const indicator = document.getElementById('qualityIndicator');
   const qLabel    = document.getElementById('qualityLabel');
   function updateIndicator(q) {
@@ -226,6 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
     qLabel.textContent  = q === 1080 ? '1080p HD' : '480p SD';
   }
   updateIndicator(currentQuality);
+
   const toast   = document.getElementById('connToast');
   const connMsg = document.getElementById('connMsg');
   const connIc  = document.getElementById('connIcon');
@@ -237,10 +241,12 @@ document.addEventListener('DOMContentLoaded', () => {
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
   }
+
   if (conn) {
     if (isSlowConnection()) showToast('📶', `Slow connection (${conn.effectiveType}) — loading 480p`);
     else showToast('✅', 'Good connection — loading 1080p HD', 2500);
   }
+
   function switchQuality(newQuality, wasPlaying, savedTime) {
     const src = newQuality === 1080 ? HD : SD;
     if (!src) return;
@@ -254,6 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentQuality = newQuality;
     updateIndicator(newQuality);
   }
+
   const player = new Plyr('#player', {
     iconUrl:    'https://cdn.plyr.io/3.7.8/plyr.svg',
     blankVideo: 'https://cdn.plyr.io/static/blank.mp4',
@@ -277,26 +284,32 @@ document.addEventListener('DOMContentLoaded', () => {
     tooltips:  { controls: true, seek: true },
     urls: { download: null },
   });
+
   player.on('ready', () => {
     document.querySelectorAll('[data-plyr="download"], a.plyr__control[download]').forEach(el => el.remove());
     if (currentQuality === 480 && SD) switchQuality(480, false, 0);
 
-    // Plyr sets inline opacity that beats CSS — force override with JS
+    // ── Overlay play button fix ──
+    // Plyr sets inline `opacity` on the button directly, which beats any CSS.
+    // MutationObserver watches the .plyr container for class changes
+    // (.plyr--playing gets added/removed) and syncs the button manually.
+    const plyrEl  = document.querySelector('.plyr');
     const overlaid = document.querySelector('.plyr__control--overlaid');
-    if (overlaid) {
-      const hide = () => {
-        overlaid.style.setProperty('opacity', '0', 'important');
-        overlaid.style.setProperty('pointer-events', 'none', 'important');
-      };
-      const show = () => {
-        overlaid.style.setProperty('opacity', '1', 'important');
-        overlaid.style.setProperty('pointer-events', 'auto', 'important');
-      };
-      player.on('play',  hide);
-      player.on('pause', show);
-      player.on('ended', show);
+    if (plyrEl && overlaid) {
+      function syncOverlayBtn() {
+        const playing = plyrEl.classList.contains('plyr--playing');
+        overlaid.style.opacity       = playing ? '0' : '1';
+        overlaid.style.visibility    = playing ? 'hidden' : 'visible';
+        overlaid.style.pointerEvents = playing ? 'none' : 'auto';
+      }
+      syncOverlayBtn(); // set initial state
+      new MutationObserver(syncOverlayBtn).observe(plyrEl, {
+        attributes: true,
+        attributeFilter: ['class'],
+      });
     }
   });
+
   if (conn) {
     conn.addEventListener('change', () => {
       if (manualOverride) return;
@@ -309,8 +322,10 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast(slow ? '⚠️' : '✅', slow ? 'Connection slowed — switching to 480p' : 'Connection improved — switching to 1080p HD', 4000);
     });
   }
+
   window._player = player;
 });
+
 document.addEventListener('contextmenu', e => { if (e.target.closest('.plyr')) e.preventDefault(); });
 </script>
 {% endblock %}
