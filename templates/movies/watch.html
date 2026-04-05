@@ -57,17 +57,16 @@ a.plyr__control[download] { display: none !important; }
 .quality-indicator.sd { color: #facc15; border-color: rgba(250,204,21,0.2); background: rgba(250,204,21,0.06); }
 .quality-indicator.sd .dot { background: #facc15; }
 
-/* ── Player wrapper & our own overlay button ── */
 .player-wrap {
   background: #000;
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  position: relative; /* needed for overlay positioning */
+  position: relative;
 }
 .plyr { --plyr-color-main: #e8192c; }
 
-/* Our custom play button — totally independent from Plyr */
+/* Our own overlay button — Plyr never touches this */
 .custom-play-overlay {
   position: absolute;
   top: 50%;
@@ -84,24 +83,18 @@ a.plyr__control[download] { display: none !important; }
   justify-content: center;
   z-index: 10;
   box-shadow: 0 0 24px rgba(232,25,44,0.5);
-  transition: background 0.2s, transform 0.15s, opacity 0.2s;
-  /* Visible by default (paused state) */
   opacity: 1;
   pointer-events: auto;
-}
-.custom-play-overlay:hover {
-  background: rgba(232,25,44,1);
-  transform: translate(-50%, -50%) scale(1.08);
-}
-.custom-play-overlay.hidden {
-  opacity: 0 !important;
-  pointer-events: none !important;
+  /* No CSS transition on opacity so hide is instant — avoids flicker */
 }
 .custom-play-overlay svg {
   width: 28px;
   height: 28px;
   fill: #fff;
-  margin-left: 4px; /* optical centre for play triangle */
+  margin-left: 4px;
+}
+.custom-play-overlay.hidden {
+  display: none !important;
 }
 @media (max-width: 768px) {
   .custom-play-overlay {
@@ -111,6 +104,7 @@ a.plyr__control[download] { display: none !important; }
   .custom-play-overlay svg {
     width: 32px;
     height: 32px;
+    margin-left: 5px;
   }
 }
 
@@ -195,14 +189,13 @@ a.plyr__control[download] { display: none !important; }
       </div>
     {% elif movie.video_url_hd or movie.video_url_sd %}
 
-      <!-- Our own overlay button — Plyr never touches this -->
+      <!-- Custom overlay button — completely independent from Plyr -->
       <button class="custom-play-overlay" id="customPlayBtn" aria-label="Play">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M8 5v14l11-7z"/>
         </svg>
       </button>
 
-      <!-- No play-large in controls — we handle it ourselves -->
       <video id="player" playsinline controls
         {% if movie.poster %}data-poster="{{ movie.get_poster_url }}"{% endif %}>
         {% if movie.video_url_hd %}<source src="{{ movie.video_url_hd }}" type="video/mp4" size="1080">{% endif %}
@@ -309,7 +302,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateIndicator(newQuality);
   }
 
-  // ── Plyr: no play-large — we use our own button ──
   const player = new Plyr('#player', {
     iconUrl:    'https://cdn.plyr.io/3.7.8/plyr.svg',
     blankVideo: 'https://cdn.plyr.io/static/blank.mp4',
@@ -334,14 +326,24 @@ document.addEventListener('DOMContentLoaded', () => {
     urls: { download: null },
   });
 
-  // ── Our custom overlay button logic ──
-  // 100% our code, Plyr never touches this element
+  // ── Custom overlay button ──
   const customBtn = document.getElementById('customPlayBtn');
   if (customBtn) {
-    // Clicking the button plays the video
-    customBtn.addEventListener('click', () => {
-      player.play();
-    });
+
+    function doPlay(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      // Hide button immediately so it feels instant
+      customBtn.classList.add('hidden');
+      player.play().catch(() => {
+        // If play() is rejected (e.g. browser policy), show button again
+        customBtn.classList.remove('hidden');
+      });
+    }
+
+    // Both click (desktop) and touchend (mobile)
+    customBtn.addEventListener('click', doPlay);
+    customBtn.addEventListener('touchend', doPlay, { passive: false });
 
     function syncBtn() {
       if (player.playing) {
@@ -354,7 +356,6 @@ document.addEventListener('DOMContentLoaded', () => {
     player.on('play',   syncBtn);
     player.on('pause',  syncBtn);
     player.on('ended',  syncBtn);
-    player.on('ready',  syncBtn);
   }
 
   player.on('ready', () => {
