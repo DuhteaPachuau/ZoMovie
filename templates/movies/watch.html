@@ -65,7 +65,7 @@ a.plyr__control[download] {
   flex: 1;
 }
 
-.wn-badges { display: flex; gap: 0.4rem; flex-shrink: 0; }
+.wn-badges { display: flex; gap: 0.4rem; flex-shrink: 0; align-items: center; }
 
 /* ── Quality indicator pill ── */
 .quality-indicator {
@@ -80,17 +80,19 @@ a.plyr__control[download] {
   border-radius: 6px;
   padding: 3px 9px;
   letter-spacing: 0.05em;
+  transition: all 0.3s;
 }
 .quality-indicator .dot {
   width: 6px; height: 6px;
   border-radius: 50%;
   background: var(--text-muted);
   flex-shrink: 0;
+  transition: background 0.3s;
 }
-.quality-indicator.hd  .dot { background: #4ade80; }
-.quality-indicator.sd  .dot { background: #facc15; }
-.quality-indicator.hd  { color: #4ade80; border-color: rgba(74,222,128,0.2); background: rgba(74,222,128,0.06); }
-.quality-indicator.sd  { color: #facc15; border-color: rgba(250,204,21,0.2);  background: rgba(250,204,21,0.06);  }
+.quality-indicator.hd { color: #4ade80; border-color: rgba(74,222,128,0.2); background: rgba(74,222,128,0.06); }
+.quality-indicator.hd .dot { background: #4ade80; }
+.quality-indicator.sd { color: #facc15; border-color: rgba(250,204,21,0.2);  background: rgba(250,204,21,0.06); }
+.quality-indicator.sd .dot { background: #facc15; }
 
 /* ── Player ── */
 .player-wrap {
@@ -100,22 +102,21 @@ a.plyr__control[download] {
   margin: 0 auto;
 }
 
+/* Plyr theme */
 .plyr { --plyr-color-main: #e8192c; }
 
+/* Fix: large play button should hide on play */
+.plyr--playing .plyr__control--overlaid { opacity: 0 !important; pointer-events: none !important; }
+
 .trailer-wrap { position: relative; padding-top: 56.25%; }
-.trailer-wrap iframe {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%; border: 0;
-}
+.trailer-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
 .no-video {
   aspect-ratio: 16/9;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 0.75rem;
-  background: #050710;
-  color: var(--text-muted);
-  font-size: 0.85rem;
+  gap: 0.75rem; background: #050710;
+  color: var(--text-muted); font-size: 0.85rem;
 }
 
 /* ── Content ── */
@@ -185,19 +186,19 @@ a.plyr__control[download] {
   font-size: 0.8rem;
   color: var(--text-muted);
   display: flex; align-items: center; gap: 0.5rem;
-  z-index: 999;
+  z-index: 9999;
   transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
   pointer-events: none;
   white-space: nowrap;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
 }
 .conn-toast.show { transform: translateX(-50%) translateY(0); }
-.conn-toast .ti { font-size: 1rem; }
 
 @media (max-width: 640px) {
-  .watch-nav   { top: 64px; }
-  .wn-title    { font-size: 0.78rem; }
+  .watch-nav    { top: 64px; }
+  .wn-title     { font-size: 0.78rem; }
   .movie-top h1 { font-size: 1.4rem; }
-  .info-chip   { min-width: calc(50% - 0.375rem); flex: 1 1 calc(50% - 0.375rem); }
+  .info-chip    { min-width: calc(50% - 0.375rem); flex: 1 1 calc(50% - 0.375rem); }
 }
 @media (max-width: 380px) {
   .movie-top h1 { font-size: 1.15rem; }
@@ -218,7 +219,6 @@ a.plyr__control[download] {
     </a>
     <span class="wn-title">{{ movie.title }}</span>
     <div class="wn-badges">
-      <!-- Live quality indicator updated by JS -->
       <div class="quality-indicator" id="qualityIndicator">
         <span class="dot"></span>
         <span id="qualityLabel">—</span>
@@ -300,7 +300,7 @@ a.plyr__control[download] {
 
 <!-- Connection toast -->
 <div class="conn-toast" id="connToast">
-  <span class="ti" id="connIcon">📶</span>
+  <span id="connIcon">📶</span>
   <span id="connMsg">Detecting connection…</span>
 </div>
 
@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const HD = "{{ movie.video_url_hd|escapejs }}";
   const SD = "{{ movie.video_url_sd|escapejs }}";
 
-  // ── Detect connection quality ──────────────────────────────
+  // ── Connection detection ───────────────────────────────────
   const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   const slowTypes = ['slow-2g', '2g', '3g'];
 
@@ -322,11 +322,10 @@ document.addEventListener('DOMContentLoaded', () => {
     return slowTypes.includes(conn.effectiveType) || (conn.downlink && conn.downlink < 2);
   }
 
-  // Pick starting source
   let currentQuality = (SD && isSlowConnection()) ? 480 : 1080;
-  let currentSrc     = currentQuality === 480 ? SD : HD;
+  let manualOverride = false;
 
-  // ── Quality indicator UI ───────────────────────────────────
+  // ── Quality indicator ──────────────────────────────────────
   const indicator = document.getElementById('qualityIndicator');
   const qLabel    = document.getElementById('qualityLabel');
 
@@ -336,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   updateIndicator(currentQuality);
 
-  // ── Toast helper ───────────────────────────────────────────
+  // ── Toast ──────────────────────────────────────────────────
   const toast   = document.getElementById('connToast');
   const connMsg = document.getElementById('connMsg');
   const connIc  = document.getElementById('connIcon');
@@ -350,17 +349,39 @@ document.addEventListener('DOMContentLoaded', () => {
     toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
   }
 
-  // Show connection toast on load
   if (conn) {
     if (isSlowConnection()) {
-      showToast('📶', `Slow connection detected (${conn.effectiveType}) — loading 480p`);
+      showToast('📶', `Slow connection (${conn.effectiveType}) — loading 480p`);
     } else {
-      showToast('✅', `Good connection — loading 1080p HD`, 2500);
+      showToast('✅', 'Good connection — loading 1080p HD', 2500);
     }
+  }
+
+  // ── Smooth quality switch using native video element ───────
+  // This avoids Plyr re-rendering controls (fixes play button bug)
+  function switchQuality(newQuality, wasPlaying, savedTime) {
+    const src = newQuality === 1080 ? HD : SD;
+    if (!src) return;
+
+    const video = player.media; // native <video> element
+    video.src = src;
+    video.load();
+
+    video.addEventListener('canplay', () => {
+      video.currentTime = savedTime || 0;
+      if (wasPlaying) {
+        video.play().catch(() => {});
+      }
+    }, { once: true });
+
+    currentQuality = newQuality;
+    updateIndicator(newQuality);
   }
 
   // ── Init Plyr ──────────────────────────────────────────────
   const player = new Plyr('#player', {
+    iconUrl:    'https://cdn.plyr.io/3.7.8/plyr.svg',
+    blankVideo: 'https://cdn.plyr.io/static/blank.mp4',
     controls: [
       'play-large', 'play', 'rewind', 'fast-forward',
       'progress', 'current-time', 'duration',
@@ -372,23 +393,11 @@ document.addEventListener('DOMContentLoaded', () => {
       options: [1080, 480],
       forced: true,
       onChange(newQuality) {
-        const src = newQuality === 1080 ? HD : SD;
-        if (!src) return;
+        if (newQuality === currentQuality) return;
+        manualOverride = true;
         const t = player.currentTime;
         const wasPlaying = !player.paused;
-        currentQuality = newQuality;
-
-        player.source = {
-          type: 'video',
-          sources: [{ src, type: 'video/mp4' }],
-        };
-
-        player.once('canplay', () => {
-          player.currentTime = t;
-          if (wasPlaying) player.play();
-        });
-
-        updateIndicator(newQuality);
+        switchQuality(newQuality, wasPlaying, t);
         showToast(
           newQuality === 1080 ? '🎬' : '📱',
           `Switched to ${newQuality === 1080 ? '1080p HD' : '480p SD'}`
@@ -400,58 +409,38 @@ document.addEventListener('DOMContentLoaded', () => {
     urls: { download: null },
   });
 
-  // Remove download button after render
+  // Remove any download element after Plyr renders
   player.on('ready', () => {
     document
       .querySelectorAll('[data-plyr="download"], a.plyr__control[download]')
       .forEach(el => el.remove());
 
-    // If connection-based picked SD, load it now
+    // Load SD if connection-based default is SD
     if (currentQuality === 480 && SD) {
-      player.source = {
-        type: 'video',
-        sources: [{ src: SD, type: 'video/mp4' }],
-      };
+      switchQuality(480, false, 0);
     }
   });
 
-  // ── Auto-switch if connection changes mid-watch ────────────
+  // ── Auto-switch on connection change ───────────────────────
   if (conn) {
     conn.addEventListener('change', () => {
+      if (manualOverride) return; // user already chose manually
       const slow = isSlowConnection();
       const targetQ = (slow && SD) ? 480 : 1080;
       if (targetQ === currentQuality) return;
 
-      // Only auto-switch if user hasn't manually changed
-      if (!player._manualQuality) {
-        const t = player.currentTime;
-        const wasPlaying = !player.paused;
-        const src = targetQ === 480 ? SD : HD;
-        currentQuality = targetQ;
-
-        player.source = {
-          type: 'video',
-          sources: [{ src, type: 'video/mp4' }],
-        };
-        player.once('canplay', () => {
-          player.currentTime = t;
-          if (wasPlaying) player.play();
-        });
-
-        updateIndicator(targetQ);
-        showToast(
-          slow ? '⚠️' : '✅',
-          slow
-            ? 'Connection slowed — switching to 480p'
-            : 'Connection improved — switching to 1080p HD',
-          4000
-        );
-      }
+      const t = player.currentTime;
+      const wasPlaying = !player.paused;
+      switchQuality(targetQ, wasPlaying, t);
+      showToast(
+        slow ? '⚠️' : '✅',
+        slow
+          ? 'Connection slowed — switching to 480p'
+          : 'Connection improved — switching to 1080p HD',
+        4000
+      );
     });
   }
-
-  // Track manual quality change
-  player.on('qualitychange', () => { player._manualQuality = true; });
 
   window._player = player;
 });
