@@ -39,8 +39,14 @@ class Movie(models.Model):
                                    help_text='Cloudinary URL for OG/social preview image. Leave blank to use poster.')
 
     # Video: free embed sources (see README for options)
-    video_embed_url   = models.URLField(blank=True,
-                                        help_text='Embed URL — see README for free hosting options')
+    video_url_hd = models.URLField(
+        blank=True, 
+        help_text="Direct MP4 link for 1080p (Archive.org)"
+    )
+    video_url_sd = models.URLField(
+        blank=True, 
+        help_text="Direct MP4 link for 480p (The Handbrake file)"
+    )
     trailer_embed_url = models.URLField(blank=True)
 
     status      = models.CharField(max_length=20, choices=STATUS_CHOICES, default='now_showing')

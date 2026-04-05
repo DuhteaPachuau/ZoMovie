@@ -12,7 +12,7 @@ class MovieAdmin(admin.ModelAdmin):
         ('Basic Info', {'fields': ('title','slug','tagline','description','director','cast','genres')}),
         ('Details',    {'fields': ('release_year','duration','rating','imdb_score','quality','status','is_featured')}),
         ('Media',      {'fields': ('poster','backdrop','og_image_url')}),
-        ('Video',      {'fields': ('video_embed_url','trailer_embed_url')}),
+        ('Video',      {'fields': ('video_url_hd','video_url_sd','trailer_embed_url')}),
     )
 
 @admin.register(Genre)
