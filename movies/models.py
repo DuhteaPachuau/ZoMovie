@@ -74,9 +74,10 @@ class Movie(models.Model):
         return [c.strip() for c in self.cast.split(',') if c.strip()]
 
     def get_og_image(self):
-        """Return the best OG image URL available."""
         if self.og_image_url:
             return self.og_image_url
         if self.poster:
-            return self.poster.url
+            url = self.poster.url
+            if url.startswith('http'):
+                return url
         return ''

@@ -5,10 +5,11 @@ from django.conf import settings
 from .models import Movie, Genre
 
 def _og(title=None, desc=None, image=None):
+    fallback = 'https://res.cloudinary.com/dpsmjarzo/image/upload/v1775288288/Stream_your_films_with_ZoMovie_mdjeyx.png'
     return {
-        'og_title':       title or settings.SITE_NAME,
+        'og_title':       title or 'ZoMovie — Free Movie Streaming',
         'og_description': desc  or 'Watch free movies online — no signup required.',
-        'og_image':       image or settings.OG_DEFAULT_IMAGE,
+        'og_image':       image or fallback,
     }
 
 def home(request):
