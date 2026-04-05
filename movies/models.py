@@ -29,22 +29,19 @@ class Movie(models.Model):
     rating      = models.CharField(max_length=10, choices=RATING_CHOICES, default='PG')
     imdb_score  = models.DecimalField(max_digits=3, decimal_places=1, default=0.0)
 
-    # Cloudinary stores the image; you just upload in admin and it auto-goes to Cloudinary
     poster      = models.ImageField(upload_to='posters/', blank=True,
                                     help_text='Upload here — auto-saved to Cloudinary')
     backdrop    = models.ImageField(upload_to='backdrops/', blank=True)
 
-    # OG image: either use the poster URL or paste a specific Cloudinary URL
     og_image_url = models.URLField(blank=True,
                                    help_text='Cloudinary URL for OG/social preview image. Leave blank to use poster.')
 
-    # Video: free embed sources (see README for options)
     video_url_hd = models.URLField(
-        blank=True, 
+        blank=True,
         help_text="Direct MP4 link for 1080p (Archive.org)"
     )
     video_url_sd = models.URLField(
-        blank=True, 
+        blank=True,
         help_text="Direct MP4 link for 480p (The Handbrake file)"
     )
     trailer_embed_url = models.URLField(blank=True)
@@ -73,17 +70,17 @@ class Movie(models.Model):
     def cast_list(self):
         return [c.strip() for c in self.cast.split(',') if c.strip()]
 
-def get_og_image(self):
-    """Return OG image — landscape cropped for social sharing."""
-    if self.og_image_url:
-        return self.og_image_url
-    if self.poster:
-        url = self.poster.url
-        if url.startswith('http') and 'cloudinary.com' in url:
-            # Auto-transform to 1200x630 landscape for OG
-            return url.replace(
-                '/upload/',
-                '/upload/c_fill,w_1200,h_630,g_auto/'
-            )
-        return url if url.startswith('http') else ''
-    return ''
+    def get_og_image(self):
+        """Return OG image — landscape cropped for social sharing."""
+        if self.og_image_url:
+            return self.og_image_url
+        if self.poster:
+            url = self.poster.url
+            if url.startswith('http') and 'cloudinary.com' in url:
+                # Auto-transform to 1200x630 landscape for OG
+                return url.replace(
+                    '/upload/',
+                    '/upload/c_fill,w_1200,h_630,g_auto/'
+                )
+            return url if url.startswith('http') else ''
+        return ''
