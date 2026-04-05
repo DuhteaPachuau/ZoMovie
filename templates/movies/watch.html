@@ -12,20 +12,10 @@
   --text-main:     #eef0f8;
   --text-muted:    #8892a4;
 }
-
-/* ── Force hide download button in Plyr 3.7.x ── */
 .plyr__controls [data-plyr="download"],
 .plyr__menu__container [data-value="download"],
-a.plyr__control[download] {
-  display: none !important;
-}
-
-.watch-wrapper {
-  background: var(--bg-deep);
-  min-height: 100vh;
-}
-
-/* ── Watch Nav ── */
+a.plyr__control[download] { display: none !important; }
+.watch-wrapper { background: var(--bg-deep); min-height: 100vh; }
 .watch-nav {
   background: rgba(7,9,15,0.96);
   backdrop-filter: blur(20px);
@@ -40,217 +30,90 @@ a.plyr__control[download] {
   top: 64px;
   z-index: 100;
 }
-
 .wn-back {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  color: var(--text-muted);
-  font-size: 0.82rem;
-  font-weight: 600;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: color 0.2s;
+  display: flex; align-items: center; gap: 0.35rem;
+  color: var(--text-muted); font-size: 0.82rem; font-weight: 600;
+  white-space: nowrap; flex-shrink: 0; transition: color 0.2s;
 }
 .wn-back:hover { color: var(--text-main); }
-
 .wn-title {
-  font-family: var(--disp);
-  font-size: 0.95rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
+  font-family: var(--disp); font-size: 0.95rem;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
 }
-
 .wn-badges { display: flex; gap: 0.4rem; flex-shrink: 0; align-items: center; }
-
-/* ── Quality indicator pill ── */
 .quality-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 6px;
-  padding: 3px 9px;
-  letter-spacing: 0.05em;
-  transition: all 0.3s;
+  display: flex; align-items: center; gap: 0.3rem;
+  font-size: 0.7rem; font-weight: 700; color: var(--text-muted);
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  border-radius: 6px; padding: 3px 9px; letter-spacing: 0.05em; transition: all 0.3s;
 }
 .quality-indicator .dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--text-muted);
-  flex-shrink: 0;
-  transition: background 0.3s;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--text-muted); flex-shrink: 0; transition: background 0.3s;
 }
 .quality-indicator.hd { color: #4ade80; border-color: rgba(74,222,128,0.2); background: rgba(74,222,128,0.06); }
 .quality-indicator.hd .dot { background: #4ade80; }
-.quality-indicator.sd { color: #facc15; border-color: rgba(250,204,21,0.2);  background: rgba(250,204,21,0.06); }
+.quality-indicator.sd { color: #facc15; border-color: rgba(250,204,21,0.2); background: rgba(250,204,21,0.06); }
 .quality-indicator.sd .dot { background: #facc15; }
-
-/* ── Player ── */
-.player-wrap {
-  background: #000;
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-}
-
-/* Plyr theme */
+.player-wrap { background: #000; width: 100%; max-width: 1280px; margin: 0 auto; }
 .plyr { --plyr-color-main: #e8192c; }
-
-/* Fix: large play button should hide on play */
 .plyr--playing .plyr__control--overlaid { opacity: 0 !important; pointer-events: none !important; }
-
 .trailer-wrap { position: relative; padding-top: 56.25%; }
 .trailer-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-
 .no-video {
-  aspect-ratio: 16/9;
-  display: flex; flex-direction: column;
+  aspect-ratio: 16/9; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 0.75rem; background: #050710;
-  color: var(--text-muted); font-size: 0.85rem;
+  gap: 0.75rem; background: #050710; color: var(--text-muted); font-size: 0.85rem;
 }
-
-/* ── Content ── */
-.content-wrap {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 1.75rem 1.25rem 4rem;
-}
-
-.movie-top {
-  padding-bottom: 1.25rem;
-  border-bottom: 1px solid var(--border-light);
-  margin-bottom: 1.25rem;
-}
-
+.content-wrap { max-width: 1280px; margin: 0 auto; padding: 1.75rem 1.25rem 4rem; }
+.movie-top { padding-bottom: 1.25rem; border-bottom: 1px solid var(--border-light); margin-bottom: 1.25rem; }
 .movie-top h1 {
-  font-family: var(--disp);
-  font-size: 2rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  line-height: 1.1;
-  margin-bottom: 0.45rem;
+  font-family: var(--disp); font-size: 2rem;
+  letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.1; margin-bottom: 0.45rem;
 }
-
-.movie-sub {
-  display: flex; flex-wrap: wrap;
-  gap: 0.5rem; align-items: center;
-  font-size: 0.82rem; color: var(--text-muted);
-}
+.movie-sub { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-size: 0.82rem; color: var(--text-muted); }
 .movie-sub .sep { color: var(--border-light); }
-.imdb-pill {
-  background: #f5c518; color: #000;
-  font-weight: 800; font-size: 0.68rem;
-  padding: 2px 6px; border-radius: 3px;
-  letter-spacing: 0.04em;
-}
-
-.movie-desc {
-  font-size: 0.9rem; line-height: 1.75;
-  color: #b0b8c8; max-width: 780px;
-  margin-bottom: 1.5rem;
-}
-
+.imdb-pill { background: #f5c518; color: #000; font-weight: 800; font-size: 0.68rem; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.04em; }
+.movie-desc { font-size: 0.9rem; line-height: 1.75; color: #b0b8c8; max-width: 780px; margin-bottom: 1.5rem; }
 .info-row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-.info-chip {
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 8px; padding: 0.6rem 1rem;
-  min-width: 130px;
-}
-.info-chip-label {
-  font-size: 0.62rem; font-weight: 700;
-  letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--text-muted); margin-bottom: 0.2rem;
-}
+.info-chip { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 8px; padding: 0.6rem 1rem; min-width: 130px; }
+.info-chip-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.2rem; }
 .info-chip-val { font-size: 0.83rem; font-weight: 600; color: var(--text-main); }
-
-/* ── Connection toast ── */
 .conn-toast {
-  position: fixed;
-  bottom: 1.5rem; left: 50%;
+  position: fixed; bottom: 1.5rem; left: 50%;
   transform: translateX(-50%) translateY(80px);
-  background: #1a1d2e;
-  border: 1px solid var(--border-light);
-  border-radius: 10px;
-  padding: 0.65rem 1.2rem;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  display: flex; align-items: center; gap: 0.5rem;
-  z-index: 9999;
-  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
-  pointer-events: none;
-  white-space: nowrap;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  background: #1a1d2e; border: 1px solid var(--border-light);
+  border-radius: 10px; padding: 0.65rem 1.2rem; font-size: 0.8rem;
+  color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;
+  z-index: 9999; transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events: none; white-space: nowrap; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
 }
 .conn-toast.show { transform: translateX(-50%) translateY(0); }
-
 @media (max-width: 640px) {
-  .watch-nav    { top: 64px; }
-  .wn-title     { font-size: 0.78rem; }
+  .watch-nav { top: 64px; }
+  .wn-title { font-size: 0.78rem; }
   .movie-top h1 { font-size: 1.4rem; }
-  .info-chip    { min-width: calc(50% - 0.375rem); flex: 1 1 calc(50% - 0.375rem); }
+  .info-chip { min-width: calc(50% - 0.375rem); flex: 1 1 calc(50% - 0.375rem); }
 }
 @media (max-width: 380px) {
   .movie-top h1 { font-size: 1.15rem; }
-  .info-chip    { min-width: 100%; }
+  .info-chip { min-width: 100%; }
 }
-/* ── Mobile touch seekbar fix ── */
 @media (max-width: 768px) {
-  /* Taller hit area for the seek bar */
-  .plyr__progress {
-    height: 12px !important;
-    cursor: pointer;
-  }
-
-  .plyr__progress input[type=range] {
-    height: 12px !important;
-  }
-
-  /* Bigger thumb for finger dragging */
-  .plyr__progress input[type=range]::-webkit-slider-thumb {
-    width: 20px !important;
-    height: 20px !important;
-  }
-
-  .plyr__progress input[type=range]::-moz-range-thumb {
-    width: 20px !important;
-    height: 20px !important;
-  }
-
-  /* Make controls bar taller so buttons are easier to tap */
-  .plyr__controls {
-    padding: 10px 8px !important;
-    gap: 6px !important;
-  }
-
-  /* Bigger tap targets for all control buttons */
-  .plyr__controls .plyr__control {
-    padding: 8px !important;
-    min-width: 36px !important;
-    min-height: 36px !important;
-  }
-
-  /* Hide pip on mobile — not supported */
-  .plyr__control[data-plyr="pip"] {
-    display: none !important;
-  }
+  .plyr__progress { height: 12px !important; cursor: pointer; }
+  .plyr__progress input[type=range] { height: 12px !important; }
+  .plyr__progress input[type=range]::-webkit-slider-thumb { width: 20px !important; height: 20px !important; }
+  .plyr__progress input[type=range]::-moz-range-thumb { width: 20px !important; height: 20px !important; }
+  .plyr__controls { padding: 10px 8px !important; gap: 6px !important; }
+  .plyr__controls .plyr__control { padding: 8px !important; min-width: 36px !important; min-height: 36px !important; }
+  .plyr__control[data-plyr="pip"] { display: none !important; }
 }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="watch-wrapper">
-
   <nav class="watch-nav">
     <a href="{{ movie.get_absolute_url }}" class="wn-back">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -275,19 +138,13 @@ a.plyr__control[download] {
           allow="autoplay; fullscreen; picture-in-picture"
           allowfullscreen></iframe>
       </div>
-
     {% elif movie.video_url_hd or movie.video_url_sd %}
       <video id="player" playsinline controls
-        {% if movie.poster %}data-poster="{{ movie.poster.url }}"{% endif %}>
-        {% if movie.video_url_hd %}
-          <source src="{{ movie.video_url_hd }}" type="video/mp4" size="1080">
-        {% endif %}
-        {% if movie.video_url_sd %}
-          <source src="{{ movie.video_url_sd }}" type="video/mp4" size="480">
-        {% endif %}
+        {% if movie.poster %}data-poster="{{ movie.get_poster_url }}"{% endif %}>
+        {% if movie.video_url_hd %}<source src="{{ movie.video_url_hd }}" type="video/mp4" size="1080">{% endif %}
+        {% if movie.video_url_sd %}<source src="{{ movie.video_url_sd }}" type="video/mp4" size="480">{% endif %}
         Your browser does not support HTML5 video.
       </video>
-
     {% else %}
       <div class="no-video">
         <svg width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -314,32 +171,16 @@ a.plyr__control[download] {
         {% endif %}
       </div>
     </div>
-
     <p class="movie-desc">{{ movie.description }}</p>
-
     <div class="info-row">
-      <div class="info-chip">
-        <div class="info-chip-label">Director</div>
-        <div class="info-chip-val">{{ movie.director }}</div>
-      </div>
-      <div class="info-chip">
-        <div class="info-chip-label">Genre</div>
-        <div class="info-chip-val">{{ movie.genres.all|join:", " }}</div>
-      </div>
-      <div class="info-chip">
-        <div class="info-chip-label">Cast</div>
-        <div class="info-chip-val">{{ movie.cast_list|join:", " }}</div>
-      </div>
-      <div class="info-chip">
-        <div class="info-chip-label">Status</div>
-        <div class="info-chip-val">{{ movie.get_status_display }}</div>
-      </div>
+      <div class="info-chip"><div class="info-chip-label">Director</div><div class="info-chip-val">{{ movie.director }}</div></div>
+      <div class="info-chip"><div class="info-chip-label">Genre</div><div class="info-chip-val">{{ movie.genres.all|join:", " }}</div></div>
+      <div class="info-chip"><div class="info-chip-label">Cast</div><div class="info-chip-val">{{ movie.cast_list|join:", " }}</div></div>
+      <div class="info-chip"><div class="info-chip-label">Status</div><div class="info-chip-val">{{ movie.get_status_display }}</div></div>
     </div>
   </div>
-
 </div>
 
-<!-- Connection toast -->
 <div class="conn-toast" id="connToast">
   <span id="connIcon">📶</span>
   <span id="connMsg">Detecting connection…</span>
@@ -350,38 +191,27 @@ a.plyr__control[download] {
 document.addEventListener('DOMContentLoaded', () => {
   const videoEl = document.getElementById('player');
   if (!videoEl) return;
-
   const HD = "{{ movie.video_url_hd|escapejs }}";
   const SD = "{{ movie.video_url_sd|escapejs }}";
-
-  // ── Connection detection ───────────────────────────────────
   const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   const slowTypes = ['slow-2g', '2g', '3g'];
-
   function isSlowConnection() {
     if (!conn) return false;
     return slowTypes.includes(conn.effectiveType) || (conn.downlink && conn.downlink < 2);
   }
-
   let currentQuality = (SD && isSlowConnection()) ? 480 : 1080;
   let manualOverride = false;
-
-  // ── Quality indicator ──────────────────────────────────────
   const indicator = document.getElementById('qualityIndicator');
   const qLabel    = document.getElementById('qualityLabel');
-
   function updateIndicator(q) {
     indicator.className = 'quality-indicator ' + (q === 1080 ? 'hd' : 'sd');
     qLabel.textContent  = q === 1080 ? '1080p HD' : '480p SD';
   }
   updateIndicator(currentQuality);
-
-  // ── Toast ──────────────────────────────────────────────────
   const toast   = document.getElementById('connToast');
   const connMsg = document.getElementById('connMsg');
   const connIc  = document.getElementById('connIcon');
   let toastTimer;
-
   function showToast(icon, msg, duration = 3000) {
     connIc.textContent  = icon;
     connMsg.textContent = msg;
@@ -389,45 +219,27 @@ document.addEventListener('DOMContentLoaded', () => {
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
   }
-
   if (conn) {
-    if (isSlowConnection()) {
-      showToast('📶', `Slow connection (${conn.effectiveType}) — loading 480p`);
-    } else {
-      showToast('✅', 'Good connection — loading 1080p HD', 2500);
-    }
+    if (isSlowConnection()) showToast('📶', `Slow connection (${conn.effectiveType}) — loading 480p`);
+    else showToast('✅', 'Good connection — loading 1080p HD', 2500);
   }
-
-  // ── Smooth quality switch using native video element ───────
-  // This avoids Plyr re-rendering controls (fixes play button bug)
   function switchQuality(newQuality, wasPlaying, savedTime) {
     const src = newQuality === 1080 ? HD : SD;
     if (!src) return;
-
-    const video = player.media; // native <video> element
+    const video = player.media;
     video.src = src;
     video.load();
-
     video.addEventListener('canplay', () => {
       video.currentTime = savedTime || 0;
-      if (wasPlaying) {
-        video.play().catch(() => {});
-      }
+      if (wasPlaying) video.play().catch(() => {});
     }, { once: true });
-
     currentQuality = newQuality;
     updateIndicator(newQuality);
   }
-
-  // ── Init Plyr ──────────────────────────────────────────────
   const player = new Plyr('#player', {
     iconUrl:    'https://cdn.plyr.io/3.7.8/plyr.svg',
     blankVideo: 'https://cdn.plyr.io/static/blank.mp4',
-    controls: [
-      'play-large', 'play', 'rewind', 'fast-forward',
-      'progress', 'current-time', 'duration',
-      'mute', 'volume', 'settings', 'pip', 'fullscreen',
-    ],
+    controls: ['play-large','play','rewind','fast-forward','progress','current-time','duration','mute','volume','settings','pip','fullscreen'],
     touch: true,
     settings: ['quality', 'speed'],
     quality: {
@@ -440,56 +252,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const t = player.currentTime;
         const wasPlaying = !player.paused;
         switchQuality(newQuality, wasPlaying, t);
-        showToast(
-          newQuality === 1080 ? '🎬' : '📱',
-          `Switched to ${newQuality === 1080 ? '1080p HD' : '480p SD'}`
-        );
+        showToast(newQuality === 1080 ? '🎬' : '📱', `Switched to ${newQuality === 1080 ? '1080p HD' : '480p SD'}`);
       },
     },
     keyboard: { focused: true, global: false },
     tooltips:  { controls: true, seek: true },
     urls: { download: null },
   });
-
-  // Remove any download element after Plyr renders
   player.on('ready', () => {
-    document
-      .querySelectorAll('[data-plyr="download"], a.plyr__control[download]')
-      .forEach(el => el.remove());
-
-    // Load SD if connection-based default is SD
-    if (currentQuality === 480 && SD) {
-      switchQuality(480, false, 0);
-    }
+    document.querySelectorAll('[data-plyr="download"], a.plyr__control[download]').forEach(el => el.remove());
+    if (currentQuality === 480 && SD) switchQuality(480, false, 0);
   });
-
-  // ── Auto-switch on connection change ───────────────────────
   if (conn) {
     conn.addEventListener('change', () => {
-      if (manualOverride) return; // user already chose manually
+      if (manualOverride) return;
       const slow = isSlowConnection();
       const targetQ = (slow && SD) ? 480 : 1080;
       if (targetQ === currentQuality) return;
-
       const t = player.currentTime;
       const wasPlaying = !player.paused;
       switchQuality(targetQ, wasPlaying, t);
-      showToast(
-        slow ? '⚠️' : '✅',
-        slow
-          ? 'Connection slowed — switching to 480p'
-          : 'Connection improved — switching to 1080p HD',
-        4000
-      );
+      showToast(slow ? '⚠️' : '✅', slow ? 'Connection slowed — switching to 480p' : 'Connection improved — switching to 1080p HD', 4000);
     });
   }
-
   window._player = player;
 });
-
-// Block right-click on player only
-document.addEventListener('contextmenu', e => {
-  if (e.target.closest('.plyr')) e.preventDefault();
-});
+document.addEventListener('contextmenu', e => { if (e.target.closest('.plyr')) e.preventDefault(); });
 </script>
 {% endblock %}

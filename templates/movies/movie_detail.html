@@ -41,13 +41,13 @@
 {% block content %}
 <div class="detail-hero">
   <div class="detail-bg-img">
-    {% if movie.backdrop %}<img src="{{ movie.backdrop.url }}" alt="">
-    {% elif movie.poster %}<img src="{{ movie.poster.url }}" alt="">{% endif %}
+    {% if movie.backdrop %}<img src="{{ movie.get_backdrop_url }}" alt="">
+    {% elif movie.poster %}<img src="{{ movie.get_poster_url }}" alt="">{% endif %}
   </div>
   <div class="detail-overlay"></div>
   <div class="detail-inner">
     <div class="detail-poster">
-      {% if movie.poster %}<img src="{{ movie.poster.url }}" alt="{{ movie.title }}">
+      {% if movie.poster %}<img src="{{ movie.get_poster_url }}" alt="{{ movie.title }}">
       {% else %}<div style="aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;background:var(--bg3);font-size:3rem">🎬</div>{% endif %}
     </div>
     <div>
@@ -100,7 +100,7 @@
       {% for m in similar %}
       <a href="{{ m.get_absolute_url }}" class="card">
         <div class="card-poster">
-          {% if m.poster %}<img src="{{ m.poster.url }}" alt="{{ m.title }}" loading="lazy">
+          {% if m.poster %}<img src="{{ m.get_poster_url }}" alt="{{ m.title }}" loading="lazy">
           {% else %}<div class="no-poster"><span class="no-poster-ic">🎬</span></div>{% endif %}
           <div class="card-ov"><div class="play-btn" style="width:34px;height:34px;font-size:.85rem">▶</div></div>
         </div>
