@@ -66,10 +66,6 @@ a.plyr__control[download] { display: none !important; }
   background: rgba(232,25,44,0.9) !important;
   transition: opacity 0.2s ease !important;
 }
-.plyr--playing .plyr__control--overlaid {
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
 @media (max-width: 768px) {
   .plyr__control--overlaid {
     width: 72px !important;
@@ -284,6 +280,22 @@ document.addEventListener('DOMContentLoaded', () => {
   player.on('ready', () => {
     document.querySelectorAll('[data-plyr="download"], a.plyr__control[download]').forEach(el => el.remove());
     if (currentQuality === 480 && SD) switchQuality(480, false, 0);
+
+    // Plyr sets inline opacity that beats CSS — force override with JS
+    const overlaid = document.querySelector('.plyr__control--overlaid');
+    if (overlaid) {
+      const hide = () => {
+        overlaid.style.setProperty('opacity', '0', 'important');
+        overlaid.style.setProperty('pointer-events', 'none', 'important');
+      };
+      const show = () => {
+        overlaid.style.setProperty('opacity', '1', 'important');
+        overlaid.style.setProperty('pointer-events', 'auto', 'important');
+      };
+      player.on('play',  hide);
+      player.on('pause', show);
+      player.on('ended', show);
+    }
   });
   if (conn) {
     conn.addEventListener('change', () => {
