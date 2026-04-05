@@ -230,27 +230,34 @@ a.plyr__control[download] { display: none !important; }
   </nav>
 
   <div class="player-wrap" id="playerWrap">
-    {% if is_trailer and movie.trailer_embed_url %}
-      <div class="trailer-wrap">
-        <iframe src="{{ movie.trailer_embed_url }}?autoplay=1" allowfullscreen></iframe>
-      </div>
+  {% if is_trailer and movie.trailer_embed_url %}
+    <div class="trailer-wrap">
+      <iframe src="{{ movie.trailer_embed_url }}?autoplay=1" allowfullscreen></iframe>
+    </div>
 
-    {% elif movie.video_url_hd or movie.video_url_sd %}
-      <button class="custom-play-overlay" id="customPlayBtn">
-        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      </button>
+  {% elif movie.video_url_hd or movie.video_url_sd %}
+    <button class="custom-play-overlay" id="customPlayBtn">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
 
-      <video id="player" playsinline webkit-playsinline controls
-        {% if movie.poster %}data-poster="{{ movie.get_poster_url }}"{% endif %}>
-        {% if movie.video_url_hd %}<source src="{{ movie.video_url_hd }}" type="video/mp4" size="1080">{% endif %}
-        {% if movie.video_url_sd %}<source src="{{ movie.video_url_sd }}" type="video/mp4" size="480">{% endif %}
-      </video>
+    <video id="player" playsinline webkit-playsinline controls
+      {% if movie.poster %}data-poster="{{ movie.get_poster_url }}"{% endif %}>
+      
+      {# SD FIRST → REAL DEFAULT #}
+      {% if movie.video_url_sd %}
+        <source src="{{ movie.video_url_sd }}" type="video/mp4" size="480">
+      {% endif %}
 
-    {% else %}
-      <div class="no-video">Video not available yet</div>
-    {% endif %}
-  </div>
+      {# HD SECOND #}
+      {% if movie.video_url_hd %}
+        <source src="{{ movie.video_url_hd }}" type="video/mp4" size="1080">
+      {% endif %}
+    </video>
 
+  {% else %}
+    <div class="no-video">Video not available yet</div>
+  {% endif %}
+</div>
   <div class="content-wrap">
     <div class="movie-top">
       <h1>{{ movie.title }}</h1>
@@ -278,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const HD = "{{ movie.video_url_hd|escapejs }}";
   const SD = "{{ movie.video_url_sd|escapejs }}";
 
-  // Default ALWAYS 480p
+  // REAL DEFAULT = 480 (because SD is first in <source>)
   let currentQuality = 480;
 
   const indicator = document.getElementById('qualityIndicator');
@@ -290,6 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   updateUI(currentQuality);
 
+  // Plyr setup
   const player = new Plyr('#player', {
     controls: [
       'play','rewind','fast-forward','progress',
@@ -304,34 +312,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Switch quality without restarting video
   function switchQuality(newQ) {
     if (newQ === currentQuality) return;
-    const time = player.currentTime;
-    const wasPlaying = !player.paused;
 
-    videoEl.src = newQ === 1080 ? HD : SD;
+    const pos = player.currentTime;
+    const playing = !player.paused;
+
+    videoEl.src = (newQ === 1080 ? HD : SD);
     videoEl.load();
 
     videoEl.addEventListener('loadedmetadata', () => {
-      videoEl.currentTime = time;
-      if (wasPlaying) player.play().catch(()=>{});
+      videoEl.currentTime = pos;
+      if (playing) player.play().catch(()=>{});
     }, { once: true });
 
     currentQuality = newQ;
     updateUI(newQ);
   }
 
+  // Custom play button
   const customBtn = document.getElementById('customPlayBtn');
   if (customBtn) {
-    customBtn.addEventListener('pointerup', (e) => {
-      e.preventDefault();
+    customBtn.addEventListener('pointerup', () => {
       customBtn.classList.add('hidden');
       player.play().catch(() => customBtn.classList.remove('hidden'));
     });
 
+    // Sync custom button visibility
     const sync = () => {
-      if (player.playing) customBtn.classList.add('hidden');
-      else customBtn.classList.remove('hidden');
+      customBtn.classList.toggle('hidden', player.playing);
     };
     player.on('play', sync);
     player.on('pause', sync);
@@ -339,5 +349,4 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
-
 {% endblock %}
