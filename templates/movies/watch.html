@@ -58,7 +58,32 @@ a.plyr__control[download] { display: none !important; }
 .quality-indicator.sd .dot { background: #facc15; }
 .player-wrap { background: #000; width: 100%; max-width: 1280px; margin: 0 auto; }
 .plyr { --plyr-color-main: #e8192c; }
-.plyr--playing .plyr__control--overlaid { opacity: 0 !important; pointer-events: none !important; }
+
+/* ── Large play button fix ── */
+/* Always show on pause, always hide on play */
+.plyr__control--overlaid {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  width: 64px !important;
+  height: 64px !important;
+  background: rgba(232,25,44,0.9) !important;
+}
+.plyr--playing .plyr__control--overlaid {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+/* Bigger tap target on mobile */
+@media (max-width: 768px) {
+  .plyr__control--overlaid {
+    width: 72px !important;
+    height: 72px !important;
+  }
+  .plyr__control--overlaid svg {
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+
 .trailer-wrap { position: relative; padding-top: 56.25%; }
 .trailer-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .no-video {
@@ -262,6 +287,14 @@ document.addEventListener('DOMContentLoaded', () => {
   player.on('ready', () => {
     document.querySelectorAll('[data-plyr="download"], a.plyr__control[download]').forEach(el => el.remove());
     if (currentQuality === 480 && SD) switchQuality(480, false, 0);
+
+    // JS fallback: ensure overlay button visibility syncs with play state
+    const overlaid = document.querySelector('.plyr__control--overlaid');
+    if (overlaid) {
+      player.on('play',  () => { overlaid.style.opacity = '0'; overlaid.style.pointerEvents = 'none'; });
+      player.on('pause', () => { overlaid.style.opacity = '1'; overlaid.style.pointerEvents = 'auto'; });
+      player.on('ended', () => { overlaid.style.opacity = '1'; overlaid.style.pointerEvents = 'auto'; });
+    }
   });
   if (conn) {
     conn.addEventListener('change', () => {
