@@ -73,11 +73,17 @@ class Movie(models.Model):
     def cast_list(self):
         return [c.strip() for c in self.cast.split(',') if c.strip()]
 
-    def get_og_image(self):
-        if self.og_image_url:
-            return self.og_image_url
-        if self.poster:
-            url = self.poster.url
-            if url.startswith('http'):
-                return url
-        return ''
+def get_og_image(self):
+    """Return OG image — landscape cropped for social sharing."""
+    if self.og_image_url:
+        return self.og_image_url
+    if self.poster:
+        url = self.poster.url
+        if url.startswith('http') and 'cloudinary.com' in url:
+            # Auto-transform to 1200x630 landscape for OG
+            return url.replace(
+                '/upload/',
+                '/upload/c_fill,w_1200,h_630,g_auto/'
+            )
+        return url if url.startswith('http') else ''
+    return ''
