@@ -60,19 +60,16 @@ a.plyr__control[download] { display: none !important; }
 .plyr { --plyr-color-main: #e8192c; }
 
 /* ── Large play button fix ── */
-/* Always show on pause, always hide on play */
 .plyr__control--overlaid {
-  opacity: 1 !important;
-  pointer-events: auto !important;
   width: 64px !important;
   height: 64px !important;
   background: rgba(232,25,44,0.9) !important;
+  transition: opacity 0.2s ease !important;
 }
 .plyr--playing .plyr__control--overlaid {
   opacity: 0 !important;
   pointer-events: none !important;
 }
-/* Bigger tap target on mobile */
 @media (max-width: 768px) {
   .plyr__control--overlaid {
     width: 72px !important;
@@ -287,14 +284,6 @@ document.addEventListener('DOMContentLoaded', () => {
   player.on('ready', () => {
     document.querySelectorAll('[data-plyr="download"], a.plyr__control[download]').forEach(el => el.remove());
     if (currentQuality === 480 && SD) switchQuality(480, false, 0);
-
-    // JS fallback: ensure overlay button visibility syncs with play state
-    const overlaid = document.querySelector('.plyr__control--overlaid');
-    if (overlaid) {
-      player.on('play',  () => { overlaid.style.opacity = '0'; overlaid.style.pointerEvents = 'none'; });
-      player.on('pause', () => { overlaid.style.opacity = '1'; overlaid.style.pointerEvents = 'auto'; });
-      player.on('ended', () => { overlaid.style.opacity = '1'; overlaid.style.pointerEvents = 'auto'; });
-    }
   });
   if (conn) {
     conn.addEventListener('change', () => {
