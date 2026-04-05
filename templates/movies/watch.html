@@ -204,6 +204,47 @@ a.plyr__control[download] {
   .movie-top h1 { font-size: 1.15rem; }
   .info-chip    { min-width: 100%; }
 }
+/* ── Mobile touch seekbar fix ── */
+@media (max-width: 768px) {
+  /* Taller hit area for the seek bar */
+  .plyr__progress {
+    height: 12px !important;
+    cursor: pointer;
+  }
+
+  .plyr__progress input[type=range] {
+    height: 12px !important;
+  }
+
+  /* Bigger thumb for finger dragging */
+  .plyr__progress input[type=range]::-webkit-slider-thumb {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .plyr__progress input[type=range]::-moz-range-thumb {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  /* Make controls bar taller so buttons are easier to tap */
+  .plyr__controls {
+    padding: 10px 8px !important;
+    gap: 6px !important;
+  }
+
+  /* Bigger tap targets for all control buttons */
+  .plyr__controls .plyr__control {
+    padding: 8px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+  }
+
+  /* Hide pip on mobile — not supported */
+  .plyr__control[data-plyr="pip"] {
+    display: none !important;
+  }
+}
 </style>
 {% endblock %}
 
@@ -387,6 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'progress', 'current-time', 'duration',
       'mute', 'volume', 'settings', 'pip', 'fullscreen',
     ],
+    touch: true,
     settings: ['quality', 'speed'],
     quality: {
       default: currentQuality,
