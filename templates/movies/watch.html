@@ -4,17 +4,22 @@
 {% block extra_css %}
 <style>
 :root {
-  --accent:        #e8192c;
-  --accent-dim:    rgba(232,25,44,0.15);
-  --bg-deep:       #07090f;
-  --bg-card:       #0c0f1a;
-  --border-light:  rgba(255,255,255,0.07);
-  --text-main:     #eef0f8;
-  --text-muted:    #8892a4;
+  --accent: #e8192c;
+  --accent-dim: rgba(232,25,44,0.15);
+  --bg-deep: #07090f;
+  --bg-card: #0c0f1a;
+  --border-light: rgba(255,255,255,0.07);
+  --text-main: #eef0f8;
+  --text-muted: #8892a4;
 }
+
+/* Hide Plyr's native big play button to use our custom one */
+.plyr--video .plyr__control--overlaid { display: none !important; }
+
 .plyr__controls [data-plyr="download"],
 .plyr__menu__container [data-value="download"],
 a.plyr__control[download] { display: none !important; }
+
 .watch-wrapper { background: var(--bg-deep); min-height: 100vh; }
 .watch-nav {
   background: rgba(7,9,15,0.96);
@@ -27,7 +32,7 @@ a.plyr__control[download] { display: none !important; }
   align-items: center;
   gap: 0.75rem;
   position: sticky;
-  top: 64px;
+  top: 0;
   z-index: 100;
 }
 .wn-back {
@@ -42,20 +47,15 @@ a.plyr__control[download] { display: none !important; }
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
 }
 .wn-badges { display: flex; gap: 0.4rem; flex-shrink: 0; align-items: center; }
+
 .quality-indicator {
   display: flex; align-items: center; gap: 0.3rem;
   font-size: 0.7rem; font-weight: 700; color: var(--text-muted);
   background: var(--bg-card); border: 1px solid var(--border-light);
-  border-radius: 6px; padding: 3px 9px; letter-spacing: 0.05em; transition: all 0.3s;
-}
-.quality-indicator .dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--text-muted); flex-shrink: 0; transition: background 0.3s;
+  border-radius: 6px; padding: 3px 9px; letter-spacing: 0.05em;
 }
 .quality-indicator.hd { color: #4ade80; border-color: rgba(74,222,128,0.2); background: rgba(74,222,128,0.06); }
-.quality-indicator.hd .dot { background: #4ade80; }
 .quality-indicator.sd { color: #facc15; border-color: rgba(250,204,21,0.2); background: rgba(250,204,21,0.06); }
-.quality-indicator.sd .dot { background: #facc15; }
 
 .player-wrap {
   background: #000;
@@ -63,100 +63,57 @@ a.plyr__control[download] { display: none !important; }
   max-width: 1280px;
   margin: 0 auto;
   position: relative;
+  overflow: hidden;
 }
-.plyr { --plyr-color-main: #e8192c; }
 
-/* Our own overlay button — Plyr never touches this */
+/* Enhanced Custom Play Button */
 .custom-play-overlay {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 68px;
-  height: 68px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  background: rgba(232,25,44,0.92);
+  background: var(--accent);
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
-  box-shadow: 0 0 24px rgba(232,25,44,0.5);
-  opacity: 1;
-  pointer-events: auto;
-  /* No CSS transition on opacity so hide is instant — avoids flicker */
+  z-index: 20; /* High z-index to stay above Plyr posters */
+  box-shadow: 0 0 30px rgba(232,25,44,0.4);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.custom-play-overlay svg {
-  width: 28px;
-  height: 28px;
-  fill: #fff;
-  margin-left: 4px;
-}
-.custom-play-overlay.hidden {
-  display: none !important;
-}
-@media (max-width: 768px) {
-  .custom-play-overlay {
-    width: 76px;
-    height: 76px;
-  }
-  .custom-play-overlay svg {
-    width: 32px;
-    height: 32px;
-    margin-left: 5px;
-  }
-}
+.custom-play-overlay:active { transform: translate(-50%, -50%) scale(0.9); }
+.custom-play-overlay svg { width: 30px; height: 30px; fill: #fff; margin-left: 4px; }
+.custom-play-overlay.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
 
 .trailer-wrap { position: relative; padding-top: 56.25%; }
 .trailer-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .no-video {
   aspect-ratio: 16/9; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 0.75rem; background: #050710; color: var(--text-muted); font-size: 0.85rem;
+  gap: 0.75rem; background: #050710; color: var(--text-muted);
 }
+
 .content-wrap { max-width: 1280px; margin: 0 auto; padding: 1.75rem 1.25rem 4rem; }
-.movie-top { padding-bottom: 1.25rem; border-bottom: 1px solid var(--border-light); margin-bottom: 1.25rem; }
-.movie-top h1 {
-  font-family: var(--disp); font-size: 2rem;
-  letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.1; margin-bottom: 0.45rem;
-}
-.movie-sub { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-size: 0.82rem; color: var(--text-muted); }
-.movie-sub .sep { color: var(--border-light); }
-.imdb-pill { background: #f5c518; color: #000; font-weight: 800; font-size: 0.68rem; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.04em; }
-.movie-desc { font-size: 0.9rem; line-height: 1.75; color: #b0b8c8; max-width: 780px; margin-bottom: 1.5rem; }
+.movie-top h1 { font-size: 2rem; text-transform: uppercase; margin-bottom: 0.45rem; }
 .info-row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-.info-chip { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 8px; padding: 0.6rem 1rem; min-width: 130px; }
-.info-chip-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.2rem; }
-.info-chip-val { font-size: 0.83rem; font-weight: 600; color: var(--text-main); }
+.info-chip { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 8px; padding: 0.6rem 1rem; flex: 1 1 200px; }
+
 .conn-toast {
   position: fixed; bottom: 1.5rem; left: 50%;
-  transform: translateX(-50%) translateY(80px);
+  transform: translateX(-50%) translateY(100px);
   background: #1a1d2e; border: 1px solid var(--border-light);
-  border-radius: 10px; padding: 0.65rem 1.2rem; font-size: 0.8rem;
-  color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;
-  z-index: 9999; transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
-  pointer-events: none; white-space: nowrap; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  border-radius: 10px; padding: 0.7rem 1.2rem; font-size: 0.8rem;
+  color: #fff; z-index: 9999; transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
 }
 .conn-toast.show { transform: translateX(-50%) translateY(0); }
-@media (max-width: 640px) {
-  .watch-nav { top: 64px; }
-  .wn-title { font-size: 0.78rem; }
-  .movie-top h1 { font-size: 1.4rem; }
-  .info-chip { min-width: calc(50% - 0.375rem); flex: 1 1 calc(50% - 0.375rem); }
-}
-@media (max-width: 380px) {
-  .movie-top h1 { font-size: 1.15rem; }
-  .info-chip { min-width: 100%; }
-}
+
 @media (max-width: 768px) {
-  .plyr__progress { height: 12px !important; cursor: pointer; }
-  .plyr__progress input[type=range] { height: 12px !important; }
-  .plyr__progress input[type=range]::-webkit-slider-thumb { width: 20px !important; height: 20px !important; }
-  .plyr__progress input[type=range]::-moz-range-thumb { width: 20px !important; height: 20px !important; }
-  .plyr__controls { padding: 10px 8px !important; gap: 6px !important; }
-  .plyr__controls .plyr__control { padding: 8px !important; min-width: 36px !important; min-height: 36px !important; }
-  .plyr__control[data-plyr="pip"] { display: none !important; }
+  .movie-top h1 { font-size: 1.5rem; }
+  .custom-play-overlay { width: 64px; height: 64px; }
 }
 </style>
 {% endblock %}
@@ -165,49 +122,33 @@ a.plyr__control[download] { display: none !important; }
 <div class="watch-wrapper">
   <nav class="watch-nav">
     <a href="{{ movie.get_absolute_url }}" class="wn-back">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-        <path d="M19 12H5M12 5l-7 7 7 7"/>
-      </svg>
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       Back
     </a>
     <span class="wn-title">{{ movie.title }}</span>
     <div class="wn-badges">
-      <div class="quality-indicator" id="qualityIndicator">
-        <span class="dot"></span>
-        <span id="qualityLabel">—</span>
-      </div>
-      <span class="badge" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#8892a4;">{{ movie.rating }}</span>
+      <div class="quality-indicator" id="qualityIndicator"><span id="qualityLabel">—</span></div>
     </div>
   </nav>
 
   <div class="player-wrap" id="playerWrap">
     {% if is_trailer and movie.trailer_embed_url %}
       <div class="trailer-wrap">
-        <iframe src="{{ movie.trailer_embed_url }}?autoplay=1"
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowfullscreen></iframe>
+        <iframe src="{{ movie.trailer_embed_url }}?autoplay=1" allow="autoplay; fullscreen" allowfullscreen></iframe>
       </div>
     {% elif movie.video_url_hd or movie.video_url_sd %}
-
-      <!-- Custom overlay button — completely independent from Plyr -->
       <button class="custom-play-overlay" id="customPlayBtn" aria-label="Play">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M8 5v14l11-7z"/>
-        </svg>
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       </button>
 
-      <video id="player" playsinline controls
+      <video id="player" playsinline webkit-playsinline controls
         {% if movie.poster %}data-poster="{{ movie.get_poster_url }}"{% endif %}>
         {% if movie.video_url_hd %}<source src="{{ movie.video_url_hd }}" type="video/mp4" size="1080">{% endif %}
         {% if movie.video_url_sd %}<source src="{{ movie.video_url_sd }}" type="video/mp4" size="480">{% endif %}
-        Your browser does not support HTML5 video.
       </video>
-
     {% else %}
       <div class="no-video">
-        <svg width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-          <path d="M15 10l4.553-2.277A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
-        </svg>
+        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M15 10l4.553-2.277A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
         <span>Video not available yet</span>
       </div>
     {% endif %}
@@ -217,31 +158,19 @@ a.plyr__control[download] { display: none !important; }
     <div class="movie-top">
       <h1>{{ movie.title }}</h1>
       <div class="movie-sub">
-        <span>{{ movie.release_year }}</span>
-        <span class="sep">·</span>
-        <span>{{ movie.duration_display }}</span>
-        <span class="sep">·</span>
-        <span>{{ movie.rating }}</span>
-        {% if movie.imdb_score %}
-          <span class="sep">·</span>
-          <span class="imdb-pill">IMDb</span>
-          <span>{{ movie.imdb_score }}</span>
-        {% endif %}
+        <span>{{ movie.release_year }}</span> • <span>{{ movie.duration_display }}</span> • <span>{{ movie.rating }}</span>
       </div>
     </div>
     <p class="movie-desc">{{ movie.description }}</p>
     <div class="info-row">
       <div class="info-chip"><div class="info-chip-label">Director</div><div class="info-chip-val">{{ movie.director }}</div></div>
       <div class="info-chip"><div class="info-chip-label">Genre</div><div class="info-chip-val">{{ movie.genres.all|join:", " }}</div></div>
-      <div class="info-chip"><div class="info-chip-label">Cast</div><div class="info-chip-val">{{ movie.cast_list|join:", " }}</div></div>
-      <div class="info-chip"><div class="info-chip-label">Status</div><div class="info-chip-val">{{ movie.get_status_display }}</div></div>
     </div>
   </div>
 </div>
 
 <div class="conn-toast" id="connToast">
-  <span id="connIcon">📶</span>
-  <span id="connMsg">Detecting connection…</span>
+  <span id="connIcon">📶</span> <span id="connMsg"></span>
 </div>
 
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
@@ -253,132 +182,71 @@ document.addEventListener('DOMContentLoaded', () => {
   const HD = "{{ movie.video_url_hd|escapejs }}";
   const SD = "{{ movie.video_url_sd|escapejs }}";
   const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-  const slowTypes = ['slow-2g', '2g', '3g'];
-
-  function isSlowConnection() {
-    if (!conn) return false;
-    return slowTypes.includes(conn.effectiveType) || (conn.downlink && conn.downlink < 2);
-  }
-
-  let currentQuality = (SD && isSlowConnection()) ? 480 : 1080;
-  let manualOverride = false;
-
+  
+  // Quality Logic
+  let currentQuality = (SD && conn && (conn.downlink < 2 || ['2g','3g'].includes(conn.effectiveType))) ? 480 : 1080;
+  
   const indicator = document.getElementById('qualityIndicator');
-  const qLabel    = document.getElementById('qualityLabel');
-  function updateIndicator(q) {
+  const qLabel = document.getElementById('qualityLabel');
+  const updateIndicator = (q) => {
     indicator.className = 'quality-indicator ' + (q === 1080 ? 'hd' : 'sd');
-    qLabel.textContent  = q === 1080 ? '1080p HD' : '480p SD';
-  }
+    qLabel.textContent = q === 1080 ? '1080p HD' : '480p SD';
+  };
   updateIndicator(currentQuality);
 
-  const toast   = document.getElementById('connToast');
-  const connMsg = document.getElementById('connMsg');
-  const connIc  = document.getElementById('connIcon');
-  let toastTimer;
-  function showToast(icon, msg, duration = 3000) {
-    connIc.textContent  = icon;
-    connMsg.textContent = msg;
-    toast.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
-  }
+  // Initialize Plyr
+  const player = new Plyr('#player', {
+    controls: ['play','rewind','fast-forward','progress','current-time','duration','mute','volume','settings','fullscreen'],
+    quality: { default: currentQuality, options: [1080, 480], forced: true, onChange: (q) => switchQuality(q) }
+  });
 
-  if (conn) {
-    if (isSlowConnection()) showToast('📶', `Slow connection (${conn.effectiveType}) — loading 480p`);
-    else showToast('✅', 'Good connection — loading 1080p HD', 2500);
-  }
-
-  function switchQuality(newQuality, wasPlaying, savedTime) {
-    const src = newQuality === 1080 ? HD : SD;
-    if (!src) return;
-    const video = player.media;
-    video.src = src;
-    video.load();
-    video.addEventListener('canplay', () => {
-      video.currentTime = savedTime || 0;
-      if (wasPlaying) video.play().catch(() => {});
-    }, { once: true });
+  function switchQuality(newQuality) {
+    if (newQuality === currentQuality) return;
+    const time = player.currentTime;
+    const wasPlaying = player.playing;
+    videoEl.src = newQuality === 1080 ? HD : SD;
+    videoEl.load();
+    videoEl.onloadedmetadata = () => {
+      videoEl.currentTime = time;
+      if (wasPlaying) player.play();
+    };
     currentQuality = newQuality;
     updateIndicator(newQuality);
   }
 
-  const player = new Plyr('#player', {
-    iconUrl:    'https://cdn.plyr.io/3.7.8/plyr.svg',
-    blankVideo: 'https://cdn.plyr.io/static/blank.mp4',
-    controls: ['play','rewind','fast-forward','progress','current-time','duration','mute','volume','settings','pip','fullscreen'],
-    touch: true,
-    settings: ['quality', 'speed'],
-    quality: {
-      default: currentQuality,
-      options: [1080, 480],
-      forced: true,
-      onChange(newQuality) {
-        if (newQuality === currentQuality) return;
-        manualOverride = true;
-        const t = player.currentTime;
-        const wasPlaying = !player.paused;
-        switchQuality(newQuality, wasPlaying, t);
-        showToast(newQuality === 1080 ? '🎬' : '📱', `Switched to ${newQuality === 1080 ? '1080p HD' : '480p SD'}`);
-      },
-    },
-    keyboard: { focused: true, global: false },
-    tooltips:  { controls: true, seek: true },
-    urls: { download: null },
-  });
-
-  // ── Custom overlay button ──
+  // ─── MOBILE FIX: Playback Trigger ───
   const customBtn = document.getElementById('customPlayBtn');
   if (customBtn) {
-
-    function doPlay(e) {
+    const handlePlayIntent = (e) => {
       e.preventDefault();
-      e.stopPropagation();
-      // Hide button immediately so it feels instant
+      // Hide UI immediately for responsiveness
       customBtn.classList.add('hidden');
-      player.play().catch(() => {
-        // If play() is rejected (e.g. browser policy), show button again
+      
+      // Plyr.play() returns a promise. We must handle it.
+      player.play().catch(err => {
+        console.error("Playback failed:", err);
         customBtn.classList.remove('hidden');
       });
-    }
+    };
 
-    // Both click (desktop) and touchend (mobile)
-    customBtn.addEventListener('click', doPlay);
-    customBtn.addEventListener('touchend', doPlay, { passive: false });
+    // Use 'pointerup' for best cross-device support (mouse + touch)
+    customBtn.addEventListener('pointerup', handlePlayIntent);
 
-    function syncBtn() {
-      if (player.playing) {
-        customBtn.classList.add('hidden');
-      } else {
-        customBtn.classList.remove('hidden');
-      }
-    }
-
-    player.on('play',   syncBtn);
-    player.on('pause',  syncBtn);
-    player.on('ended',  syncBtn);
+    player.on('playing', () => customBtn.classList.add('hidden'));
+    player.on('pause', () => customBtn.classList.remove('hidden'));
+    player.on('ended', () => customBtn.classList.remove('hidden'));
   }
 
-  player.on('ready', () => {
-    document.querySelectorAll('[data-plyr="download"], a.plyr__control[download]').forEach(el => el.remove());
-    if (currentQuality === 480 && SD) switchQuality(480, false, 0);
-  });
+  // Toast System
+  const toast = document.getElementById('connToast');
+  const showToast = (msg, icon = '📶') => {
+    document.getElementById('connMsg').textContent = msg;
+    document.getElementById('connIcon').textContent = icon;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  };
 
-  if (conn) {
-    conn.addEventListener('change', () => {
-      if (manualOverride) return;
-      const slow = isSlowConnection();
-      const targetQ = (slow && SD) ? 480 : 1080;
-      if (targetQ === currentQuality) return;
-      const t = player.currentTime;
-      const wasPlaying = !player.paused;
-      switchQuality(targetQ, wasPlaying, t);
-      showToast(slow ? '⚠️' : '✅', slow ? 'Connection slowed — switching to 480p' : 'Connection improved — switching to 1080p HD', 4000);
-    });
-  }
-
-  window._player = player;
+  if (conn) showToast(`Running in ${currentQuality}p mode`);
 });
-
-document.addEventListener('contextmenu', e => { if (e.target.closest('.plyr')) e.preventDefault(); });
 </script>
 {% endblock %}
