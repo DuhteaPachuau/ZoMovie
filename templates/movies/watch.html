@@ -56,23 +56,61 @@ a.plyr__control[download] { display: none !important; }
 .quality-indicator.hd .dot { background: #4ade80; }
 .quality-indicator.sd { color: #facc15; border-color: rgba(250,204,21,0.2); background: rgba(250,204,21,0.06); }
 .quality-indicator.sd .dot { background: #facc15; }
-.player-wrap { background: #000; width: 100%; max-width: 1280px; margin: 0 auto; }
+
+/* ── Player wrapper & our own overlay button ── */
+.player-wrap {
+  background: #000;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  position: relative; /* needed for overlay positioning */
+}
 .plyr { --plyr-color-main: #e8192c; }
 
-/* Base size only — visibility is 100% controlled by JS */
-.plyr__control--overlaid {
-  width: 64px !important;
-  height: 64px !important;
-  background: rgba(232,25,44,0.9) !important;
+/* Our custom play button — totally independent from Plyr */
+.custom-play-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: rgba(232,25,44,0.92);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 0 24px rgba(232,25,44,0.5);
+  transition: background 0.2s, transform 0.15s, opacity 0.2s;
+  /* Visible by default (paused state) */
+  opacity: 1;
+  pointer-events: auto;
+}
+.custom-play-overlay:hover {
+  background: rgba(232,25,44,1);
+  transform: translate(-50%, -50%) scale(1.08);
+}
+.custom-play-overlay.hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.custom-play-overlay svg {
+  width: 28px;
+  height: 28px;
+  fill: #fff;
+  margin-left: 4px; /* optical centre for play triangle */
 }
 @media (max-width: 768px) {
-  .plyr__control--overlaid {
-    width: 72px !important;
-    height: 72px !important;
+  .custom-play-overlay {
+    width: 76px;
+    height: 76px;
   }
-  .plyr__control--overlaid svg {
-    width: 28px !important;
-    height: 28px !important;
+  .custom-play-overlay svg {
+    width: 32px;
+    height: 32px;
   }
 }
 
@@ -148,7 +186,7 @@ a.plyr__control[download] { display: none !important; }
     </div>
   </nav>
 
-  <div class="player-wrap">
+  <div class="player-wrap" id="playerWrap">
     {% if is_trailer and movie.trailer_embed_url %}
       <div class="trailer-wrap">
         <iframe src="{{ movie.trailer_embed_url }}?autoplay=1"
@@ -156,12 +194,22 @@ a.plyr__control[download] { display: none !important; }
           allowfullscreen></iframe>
       </div>
     {% elif movie.video_url_hd or movie.video_url_sd %}
+
+      <!-- Our own overlay button — Plyr never touches this -->
+      <button class="custom-play-overlay" id="customPlayBtn" aria-label="Play">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+      </button>
+
+      <!-- No play-large in controls — we handle it ourselves -->
       <video id="player" playsinline controls
         {% if movie.poster %}data-poster="{{ movie.get_poster_url }}"{% endif %}>
         {% if movie.video_url_hd %}<source src="{{ movie.video_url_hd }}" type="video/mp4" size="1080">{% endif %}
         {% if movie.video_url_sd %}<source src="{{ movie.video_url_sd }}" type="video/mp4" size="480">{% endif %}
         Your browser does not support HTML5 video.
       </video>
+
     {% else %}
       <div class="no-video">
         <svg width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -261,10 +309,11 @@ document.addEventListener('DOMContentLoaded', () => {
     updateIndicator(newQuality);
   }
 
+  // ── Plyr: no play-large — we use our own button ──
   const player = new Plyr('#player', {
     iconUrl:    'https://cdn.plyr.io/3.7.8/plyr.svg',
     blankVideo: 'https://cdn.plyr.io/static/blank.mp4',
-    controls: ['play-large','play','rewind','fast-forward','progress','current-time','duration','mute','volume','settings','pip','fullscreen'],
+    controls: ['play','rewind','fast-forward','progress','current-time','duration','mute','volume','settings','pip','fullscreen'],
     touch: true,
     settings: ['quality', 'speed'],
     quality: {
@@ -285,47 +334,32 @@ document.addEventListener('DOMContentLoaded', () => {
     urls: { download: null },
   });
 
+  // ── Our custom overlay button logic ──
+  // 100% our code, Plyr never touches this element
+  const customBtn = document.getElementById('customPlayBtn');
+  if (customBtn) {
+    // Clicking the button plays the video
+    customBtn.addEventListener('click', () => {
+      player.play();
+    });
+
+    function syncBtn() {
+      if (player.playing) {
+        customBtn.classList.add('hidden');
+      } else {
+        customBtn.classList.remove('hidden');
+      }
+    }
+
+    player.on('play',   syncBtn);
+    player.on('pause',  syncBtn);
+    player.on('ended',  syncBtn);
+    player.on('ready',  syncBtn);
+  }
+
   player.on('ready', () => {
     document.querySelectorAll('[data-plyr="download"], a.plyr__control[download]').forEach(el => el.remove());
     if (currentQuality === 480 && SD) switchQuality(480, false, 0);
-
-    const overlaid = document.querySelector('.plyr__control--overlaid');
-    if (!overlaid) return;
-
-    // ── Nuclear fix for mobile + desktop ──
-    // Problem: Plyr directly writes `element.style.opacity` AFTER class changes,
-    // so MutationObserver on the container fires too early and Plyr overwrites us.
-    // Solution: Watch the button's OWN style attribute. The moment Plyr writes
-    // opacity to it, we immediately override it based on play state.
-    // We also use requestAnimationFrame as a fallback for timing edge cases.
-
-    let rafId = null;
-
-    function forceOverlayState() {
-      const playing = player.playing;
-      // Disconnect temporarily to avoid infinite loop
-      btnObserver.disconnect();
-      overlaid.style.setProperty('opacity',        playing ? '0' : '1',    'important');
-      overlaid.style.setProperty('visibility',     playing ? 'hidden' : 'visible', 'important');
-      overlaid.style.setProperty('pointer-events', playing ? 'none' : 'auto', 'important');
-      // Reconnect
-      btnObserver.observe(overlaid, { attributes: true, attributeFilter: ['style'] });
-    }
-
-    // Watch the button's own style attribute — fires whenever Plyr sets opacity on it
-    const btnObserver = new MutationObserver(() => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(forceOverlayState);
-    });
-    btnObserver.observe(overlaid, { attributes: true, attributeFilter: ['style'] });
-
-    // Also hook play/pause events directly for reliability
-    player.on('play',   () => { cancelAnimationFrame(rafId); rafId = requestAnimationFrame(forceOverlayState); });
-    player.on('pause',  () => { cancelAnimationFrame(rafId); rafId = requestAnimationFrame(forceOverlayState); });
-    player.on('ended',  () => { cancelAnimationFrame(rafId); rafId = requestAnimationFrame(forceOverlayState); });
-
-    // Set initial state
-    forceOverlayState();
   });
 
   if (conn) {
